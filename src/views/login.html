@@ -6,10 +6,9 @@
   <title>Pizza Brothers - Login</title>
   
   <link href="https://fonts.googleapis.com/css2?family=Bangers&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <link rel="stylesheet" href="/css/main.css">
   <link rel="stylesheet" href="/css/components/buttons.css">
-  <link rel="stylesheet" href="/css/components/forms.css">
-  <link rel="stylesheet" href="/css/components/inputs.css">
   <link rel="stylesheet" href="/css/pages/login.css">
 </head>
 <body>
@@ -21,8 +20,7 @@
       <img src="/images/image.png" alt="Pizza Brothers Logo">
     </div>
 
-    <!-- ✅ FORMULARIO CON USERNAME -->
-    <form class="login-box" id="loginForm">
+    <form class="login-box" id="loginForm" novalidate>
       <div class="title-wrapper">
         <h1 class="welcome-title">
           BIENVENIDO A<br>
@@ -32,7 +30,6 @@
 
       <div class="input-group">
         <div class="input-wrapper user">
-          <!-- ✅ CAMBIADO: username en lugar de email -->
           <input type="text" id="username" name="username" placeholder="Usuario" required>
         </div>
       </div>
@@ -44,12 +41,18 @@
       </div>
 
       <div class="buttons">
-        <button type="submit" class="btn btn-primary">Iniciar sesión</button>
-        <button type="button" class="btn btn-secondary" id="registerBtn">Regístrate</button>
+        <button type="submit" class="btn btn-primary">
+          <i class="fas fa-sign-in-alt"></i>
+          <div class="btn-text">Iniciar sesión</div>
+        </button>
+        <button type="button" class="btn btn-secondary" id="registerBtn">
+          <i class="fas fa-user-plus"></i>
+          <div class="btn-text">Regístrate</div>
+        </button>
       </div>
       
       <div class="forgot-password">
-        <a href="/register">¿Olvidaste tu contraseña?</a>
+        <a href="/forgot-password">¿Olvidaste tu contraseña?</a>
       </div>
     </form>
   </div>
