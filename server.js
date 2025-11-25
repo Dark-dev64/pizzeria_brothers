@@ -1,4 +1,4 @@
-// server.js
+// server.js - RUTA MESERO ACTUALIZADA
 const express = require('express');
 const path = require('path');
 const cors = require('cors');
@@ -37,6 +37,85 @@ app.get('/login', (req, res) => {
 
 app.get('/register', (req, res) => {
   res.sendFile(path.join(__dirname, 'src/views/register.html'));
+});
+
+// ✅ RUTA MESERO: Página de selección de mesas
+app.get('/mesero', (req, res) => {
+  res.sendFile(path.join(__dirname, 'src/views/tables.html'));
+});
+
+// ✅ NUEVAS RUTAS PARA DASHBOARDS SEGÚN ROL
+app.get('/cliente', (req, res) => {
+  res.sendFile(path.join(__dirname, 'src/views/tables.html'));
+});
+
+app.get('/cajero', (req, res) => {
+  res.send(`
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>Dashboard Cajero</title>
+      <style>
+        body { font-family: Arial, sans-serif; padding: 50px; text-align: center; }
+        .container { max-width: 600px; margin: 0 auto; }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <h1>🏪 Dashboard Cajero</h1>
+        <p>Bienvenido al panel de cajero</p>
+        <a href="/mesero">Ver Mesas</a> | 
+        <a href="/login">Cerrar Sesión</a>
+      </div>
+    </body>
+    </html>
+  `);
+});
+
+app.get('/admin', (req, res) => {
+  res.send(`
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>Dashboard Administrador</title>
+      <style>
+        body { font-family: Arial, sans-serif; padding: 50px; text-align: center; }
+        .container { max-width: 600px; margin: 0 auto; }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <h1>👨‍💼 Dashboard Administrador</h1>
+        <p>Bienvenido al panel de administración</p>
+        <a href="/mesero">Ver Mesas</a> | 
+        <a href="/login">Cerrar Sesión</a>
+      </div>
+    </body>
+    </html>
+  `);
+});
+
+app.get('/cocina', (req, res) => {
+  res.send(`
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <title>Dashboard Cocina</title>
+      <style>
+        body { font-family: Arial, sans-serif; padding: 50px; text-align: center; }
+        .container { max-width: 600px; margin: 0 auto; }
+      </style>
+    </head>
+    <body>
+      <div class="container">
+        <h1>👨‍🍳 Dashboard Cocina</h1>
+        <p>Bienvenido al panel de cocina</p>
+        <a href="/mesero">Ver Estado Mesas</a> | 
+        <a href="/login">Cerrar Sesión</a>
+      </div>
+    </body>
+    </html>
+  `);
 });
 
 // Ruta por defecto
@@ -88,6 +167,7 @@ async function startServer() {
       console.log(`📊 Health check: http://localhost:${PORT}/api/health`);
       console.log(`🔐 Login: http://localhost:${PORT}/login`);
       console.log(`📝 Registro: http://localhost:${PORT}/register`);
+      console.log(`🪑 Mesas: http://localhost:${PORT}/mesero`);
       console.log(`🔗 API Auth: http://localhost:${PORT}/api/auth`);
     });
   } catch (error) {

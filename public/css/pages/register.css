@@ -1,4 +1,4 @@
-/* public/css/pages/register.css - CORREGIDO */
+/* public/css/pages/register.css - VERSIÓN CORREGIDA */
 .register-container {
   background: rgba(255, 255, 255, 0.2);
   backdrop-filter: blur(15px);
@@ -9,6 +9,7 @@
   width: 100%;
   max-width: 500px;
   transition: transform 0.3s ease, box-shadow 0.3s ease;
+  animation: fadeInUp 0.8s ease-out;
 }
 
 .register-container:hover {
@@ -34,10 +35,8 @@
   box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
 }
 
-.logo img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
+.logo span {
+  font-size: 40px;
 }
 
 .register-header h1 {
@@ -58,6 +57,268 @@
   gap: 20px;
 }
 
+/* Estructura de formulario */
+.form-row {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 10px;
+}
+
+.form-group {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  animation: slideInUp 0.5s ease-out;
+  animation-fill-mode: both;
+}
+
+/* Animaciones para campos individuales */
+.form-group:nth-child(1) { animation-delay: 0.1s; }
+.form-group:nth-child(2) { animation-delay: 0.2s; }
+.form-group:nth-child(3) { animation-delay: 0.3s; }
+.form-group:nth-child(4) { animation-delay: 0.4s; }
+.form-group:nth-child(5) { animation-delay: 0.5s; }
+.form-group:nth-child(6) { animation-delay: 0.6s; }
+.form-group:nth-child(7) { animation-delay: 0.7s; }
+
+/* Labels */
+label {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.95);
+  font-size: 14px;
+}
+
+.label-icon {
+  margin-right: 8px;
+  width: 16px;
+  text-align: center;
+}
+
+.required::after {
+  content: " *";
+  color: #ff6b6b;
+}
+
+.optional::after {
+  content: " (opcional)";
+  color: rgba(255, 255, 255, 0.6);
+  font-size: 0.9em;
+  font-weight: normal;
+}
+
+/* Inputs - TODOS con bordes redondeados consistentes */
+.input-with-icon {
+  position: relative;
+  display: flex;
+  align-items: center;
+}
+
+.input-icon {
+  position: absolute;
+  left: 15px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: rgba(255, 255, 255, 0.7);
+  z-index: 1;
+  transition: color 0.3s ease;
+}
+
+.input-with-icon input,
+.input-with-icon select {
+  width: 100%;
+  padding: 15px 15px 15px 45px;
+  background: rgba(255, 255, 255, 0.1);
+  border: 2px solid rgba(255, 255, 255, 0.2);
+  border-radius: 30px; /* Bordes redondeados siempre */
+  color: white;
+  font-size: 16px;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+.input-with-icon input::placeholder {
+  color: rgba(255, 255, 255, 0.6);
+}
+
+/* Focus - MANTENER bordes redondeados */
+.input-with-icon input:focus,
+.input-with-icon select:focus {
+  outline: none;
+  border-color: #4c8c5e;
+  box-shadow: 0 0 0 3px rgba(76, 140, 94, 0.3);
+  background: rgba(255, 255, 255, 0.15);
+  border-radius: 30px; /* Mantener redondeado en focus */
+}
+
+.input-with-icon:focus-within .input-icon {
+  color: #4c8c5e;
+}
+
+/* Estados de validación - MANTENER bordes redondeados */
+.input-with-icon.valid {
+  border-color: #4caf50 !important;
+  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.2) !important;
+  border-radius: 30px !important; /* Mantener redondeado cuando validado */
+}
+
+.input-with-icon.error {
+  border-color: #ff6b6b !important;
+  box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.2) !important;
+  border-radius: 30px !important; /* Mantener redondeado cuando hay error */
+}
+
+/* Mensajes de error */
+.error-message {
+  color: #ff6b6b;
+  font-size: 12px;
+  margin-top: 5px;
+  min-height: 18px;
+  font-weight: bold;
+  text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
+}
+
+/* Password wrapper y toggle */
+.password-wrapper {
+  position: relative;
+}
+
+.password-wrapper input {
+  padding-right: 45px !important;
+}
+
+.toggle-password {
+  position: absolute;
+  right: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 50%;
+  transition: all 0.3s ease;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 35px;
+  height: 35px;
+}
+
+.toggle-password:hover {
+  color: #fff;
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* Iconos Font Awesome del ojo */
+.toggle-password i {
+  font-size: 16px;
+  transition: all 0.3s ease;
+}
+
+.toggle-password.show i::before {
+  content: "\f070"; /* fa-eye-slash */
+}
+
+/* Cuando el contenedor .input-with-icon tiene error, aplicar estilo al input */
+.input-with-icon.error input,
+.input-with-icon.error select {
+  border-color: #ff6b6b !important;
+  box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.2) !important;
+  border-radius: 30px !important;
+}
+
+.input-with-icon.valid input,
+.input-with-icon.valid select {
+  border-color: #4caf50 !important;
+  box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.2) !important;
+  border-radius: 30px !important;
+}
+
+/* Fuerza de contraseña */
+.password-strength {
+  height: 4px;
+  border-radius: 2px;
+  margin-top: 8px;
+  background: rgba(255, 255, 255, 0.2);
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.password-strength-fill {
+  height: 100%;
+  transition: all 0.3s ease;
+  width: 0%;
+  border-radius: 2px;
+}
+
+.strength-weak {
+  background: #ff4757;
+  width: 33%;
+}
+
+.strength-medium {
+  background: #ffa502;
+  width: 66%;
+}
+
+.strength-strong {
+  background: #2ed573;
+  width: 100%;
+}
+
+/* Contador de caracteres */
+.char-counter {
+  text-align: right;
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.6);
+  margin-top: 5px;
+  transition: color 0.3s ease;
+}
+
+.char-counter.warning {
+  color: #ffa502;
+}
+
+.char-counter.error {
+  color: #ff4757;
+}
+
+/* Requisitos de contraseña */
+.password-requirements {
+  margin-top: 8px;
+  padding: 12px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  border-left: 3px solid #ffb84d;
+  font-size: 12px;
+}
+
+.password-requirements small {
+  color: rgba(255, 255, 255, 0.8);
+  line-height: 1.4;
+  display: block;
+}
+
+/* Descripción del rol */
+.role-description {
+  margin-top: 8px;
+  padding: 12px;
+  background: rgba(255, 107, 53, 0.1);
+  border-radius: 12px;
+  font-size: 14px;
+  color: #fff;
+  border-left: 3px solid #ff6b35;
+  font-style: italic;
+  transition: all 0.3s ease;
+  line-height: 1.4;
+}
+
+/* Botón de registro */
 .btn-register {
   padding: 18px 40px;
   border: none;
@@ -71,12 +332,162 @@
   box-shadow: 0 5px 15px rgba(76, 140, 94, 0.4);
   margin-top: 10px;
   font-family: 'Arial Rounded MT Bold', sans-serif;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
 }
 
-.btn-register:hover {
+.btn-register:hover:not(:disabled) {
   background: linear-gradient(to right, #5daa72, #6bc186);
   transform: translateY(-3px);
   box-shadow: 0 10px 20px rgba(76, 140, 94, 0.5);
+}
+
+.btn-register:focus {
+  outline: 2px solid #4c8c5e;
+  outline-offset: 2px;
+  border-radius: 50px;
+}
+
+.btn-register:disabled {
+  background: #cccccc;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+  opacity: 0.6;
+}
+
+/* Loading state */
+.btn-register.loading {
+  pointer-events: none;
+  opacity: 0.8;
+}
+
+.btn-register.loading::after {
+  content: '';
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  top: 50%;
+  left: 50%;
+  margin: -10px 0 0 -10px;
+  border: 2px solid transparent;
+  border-top: 2px solid #ffffff;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+/* Enlaces del formulario */
+.form-links {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.form-links a {
+  color: rgba(255, 255, 255, 0.9);
+  text-decoration: none;
+  font-size: 14px;
+  transition: color 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.form-links a:hover {
+  color: #fff;
+  text-decoration: underline;
+}
+
+/* Screen reader only */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
+}
+
+/* Animaciones */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes slideInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Notificaciones */
+.notification {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  padding: 15px 20px;
+  border-radius: 15px;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+  z-index: 10000;
+  max-width: 400px;
+  animation: slideInRight 0.3s ease-out;
+  color: white;
+  font-weight: 600;
+}
+
+.notification-success {
+  background: #4caf50;
+}
+
+.notification-error {
+  background: #ff5a5a;
+}
+
+.notification-info {
+  background: #2196f3;
+}
+
+@keyframes slideInRight {
+  from {
+    opacity: 0;
+    transform: translateX(100%);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideOutRight {
+  from {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(100%);
+  }
 }
 
 /* Responsive específico para registro */
@@ -88,15 +499,24 @@
 
   .form-row {
     flex-direction: column;
-    gap: 15px;
+    gap: 0;
   }
 
   .register-header h1 {
     font-size: 28px;
   }
 
+  .logo {
+    width: 60px;
+    height: 60px;
+  }
+
+  .logo span {
+    font-size: 30px;
+  }
+
   input, select, textarea {
-    padding: 12px 15px;
+    padding: 12px 15px 12px 45px !important;
     font-size: 14px;
   }
 
@@ -106,7 +526,19 @@
   }
 }
 
-/* Animación de entrada */
-.register-container {
-  animation: fadeInUp 0.8s ease-out;
+@media (max-width: 480px) {
+  .register-container {
+    padding: 20px 15px;
+    margin: 10px;
+    border-radius: 20px;
+  }
+}
+
+/* Orientación landscape en móviles */
+@media (max-height: 600px) and (orientation: landscape) {
+  .register-container {
+    max-height: 90vh;
+    overflow-y: auto;
+    margin: 10px 0;
+  }
 }

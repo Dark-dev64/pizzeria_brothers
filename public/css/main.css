@@ -1,4 +1,4 @@
-/* public/css/main.css - CORREGIDO */
+/* public/css/main.css*/
 * {
   margin: 0;
   padding: 0;
@@ -7,9 +7,7 @@
 
 body {
   font-family: 'Arial Rounded MT Bold', 'Helvetica Rounded', Arial, sans-serif;
-  /* ❌ ELIMINADO: height: 100vh; */
-  /* ❌ ELIMINADO: overflow: hidden; */
-  min-height: 100vh; /* ✅ CAMBIADO: Permite crecimiento */
+  min-height: 100vh;
   background: linear-gradient(135deg, #ff5a5a 0%, #ff8c5a 25%, #ffb84d 50%, #ff8c5a 75%, #ff5a5a 100%);
   background-size: 400% 400%;
   animation: gradientShift 15s ease infinite;
@@ -17,7 +15,7 @@ body {
   justify-content: center;
   align-items: center;
   color: #fff;
-  padding: 20px; /* ✅ AÑADIDO: Espacio en dispositivos pequeños */
+  padding: 20px;
 }
 
 @keyframes gradientShift {
