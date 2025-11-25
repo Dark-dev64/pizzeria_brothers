@@ -1,4 +1,4 @@
-// public/js/pages/register.js - VERSIÓN COMPLETA INTEGRADA
+// public/js/pages/register.js - VERSIÓN CON DEBUGGING MEJORADO
 import { initRippleButtons } from '../components/buttons.js';
 import { initParticles } from '../components/particles.js';
 import { togglePasswordVisibility, validatePassword } from '../components/form-validator.js';
@@ -48,12 +48,10 @@ async function loadRoles() {
             }
         } else {
             console.error('❌ Error en respuesta de roles:', data.message);
-            // Cargar roles estáticos si la API falla
             loadStaticRoles();
         }
     } catch (error) {
         console.error('❌ Error cargando roles:', error);
-        // Cargar roles estáticos si hay error de conexión
         loadStaticRoles();
     }
 }
@@ -108,7 +106,6 @@ function updateRoleDescription() {
             const descripcion = selectedOption.getAttribute('data-descripcion') || 'Sin descripción disponible';
             roleDescription.textContent = descripcion;
             
-            // Animación suave
             roleDescription.style.opacity = '0';
             setTimeout(() => {
                 roleDescription.style.opacity = '1';
@@ -139,55 +136,81 @@ function setupPasswordToggles() {
     });
 }
 
-// Función para manejar el registro
+// Función para manejar el registro - CON DEBUGGING MEJORADO
 async function handleRegister(event) {
     event.preventDefault();
     
     const formData = {
-        username: document.getElementById('username')?.value,
+        username: document.getElementById('username')?.value.trim(),
         password: document.getElementById('password')?.value,
         confirmPassword: document.getElementById('confirmPassword')?.value,
-        nombre: document.getElementById('nombre')?.value,
-        apellido: document.getElementById('apellido')?.value,
-        email: document.getElementById('email')?.value,
+        nombre: document.getElementById('nombre')?.value.trim(),
+        apellido: document.getElementById('apellido')?.value.trim(),
+        email: document.getElementById('email')?.value.trim(),
         id_rol: document.getElementById('id_rol')?.value
     };
 
     console.log('📝 Datos del formulario:', formData);
 
-    // Validación de contraseña
-    const validation = validatePassword(formData.password, formData.confirmPassword);
-    if (!validation.isValid) {
-        alert(validation.message);
+    // Validación de campos obligatorios
+    if (!formData.nombre || !formData.apellido || !formData.username || !formData.password || !formData.id_rol) {
+        alert('❌ Por favor, completa todos los campos obligatorios');
         return;
     }
 
-    // Validación de campos obligatorios
-    if (!formData.nombre || !formData.apellido || !formData.username || !formData.id_rol) {
-        alert('Por favor, completa todos los campos obligatorios');
+    // Validación de contraseña
+    const validation = validatePassword(formData.password, formData.confirmPassword);
+    if (!validation.isValid) {
+        alert('❌ ' + validation.message);
+        return;
+    }
+
+    // Validación de email si se proporciona
+    if (formData.email && !isValidEmail(formData.email)) {
+        alert('❌ Por favor, ingresa un email válido');
         return;
     }
 
     try {
         console.log('🚀 Enviando datos al servidor...');
         
+        const requestData = {
+            username: formData.username,
+            password: formData.password,
+            nombre: formData.nombre,
+            apellido: formData.apellido,
+            email: formData.email || null,
+            id_rol: parseInt(formData.id_rol) || 1
+        };
+
+        console.log('📤 Datos enviados:', requestData);
+
         const response = await fetch('/api/auth/register', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({
-                username: formData.username,
-                password: formData.password,
-                nombre: formData.nombre,
-                apellido: formData.apellido,
-                email: formData.email || null,
-                id_rol: parseInt(formData.id_rol) || 1
-            })
+            body: JSON.stringify(requestData)
         });
 
+        console.log('📨 Status de respuesta:', response.status);
+        console.log('📨 Headers de respuesta:', response.headers);
+
         const data = await response.json();
-        console.log('📨 Respuesta del servidor:', data);
+        console.log('📨 Respuesta completa del servidor:', data);
+
+        if (!response.ok) {
+            console.error('❌ Error HTTP:', response.status, data);
+            
+            // Mostrar errores específicos si existen
+            if (data.errors && data.errors.length > 0) {
+                const errorMessages = data.errors.map(error => `${error.field}: ${error.message}`).join('\n');
+                alert('❌ Errores de validación:\n' + errorMessages);
+            } else {
+                alert('❌ Error: ' + (data.message || 'Error desconocido'));
+            }
+            return;
+        }
 
         if (data.success) {
             alert('✅ ' + data.message + '\nSerás redirigido al login.');
@@ -199,8 +222,14 @@ async function handleRegister(event) {
         }
     } catch (error) {
         console.error('❌ Error en registro:', error);
-        alert('Error de conexión. Verifica la consola para más detalles.');
+        alert('❌ Error de conexión. Verifica la consola para más detalles.');
     }
+}
+
+// Función para validar email
+function isValidEmail(email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
 }
 
 function initRegisterPage() {
@@ -226,10 +255,10 @@ function initRegisterPage() {
     const registerForm = document.getElementById('registerForm');
     if (registerForm) {
         registerForm.addEventListener('submit', handleRegister);
-        console.log('✅ Formulario de registro conectado - CON DESCRIPCIÓN DINÁMICA');
+        console.log('✅ Formulario de registro conectado - CON DEBUGGING MEJORADO');
     }
     
-    console.log('✅ Register page initialized - CON API Y DESCRIPCIONES DINÁMICAS');
+    console.log('✅ Register page initialized - CON DEBUGGING COMPLETO');
 }
 
 // Inicializar cuando el DOM esté listo
