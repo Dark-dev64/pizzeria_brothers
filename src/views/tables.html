@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pizza Brothers - Seleccionar Mesa</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Bangers&display=swap');
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: 'Bangers', cursive;
+      height: 100vh;
+      background: linear-gradient(135deg, #ff5a5a 0%, #ff8c5a 25%, #ffb84d 50%, #ff8c5a 75%, #ff5a5a 100%);
+      background-size: 400% 400%;
+      animation: gradientShift 15s ease infinite;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      color: #fff;
+      overflow: hidden;
+    }
+
+    @keyframes gradientShift {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+
+    .container {
+      width: 90%;
+      max-width: 900px;
+      background: rgba(255, 255, 255, 0.25);
+      backdrop-filter: blur(15px);
+      border-radius: 40px;
+      padding: 50px 40px;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+      position: relative;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .container:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 25px 50px rgba(0, 0, 0, 0.4);
+    }
+
+    /* Botón Regresar */
+    .back-btn {
+      position: absolute;
+      top: 20px;
+      left: 30px;
+      background: #ffeb3b;
+      color: #333;
+      padding: 12px 24px;
+      border-radius: 50px;
+      font-size: 18px;
+      font-weight: bold;
+      text-decoration: none;
+      box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+      transition: all 0.3s;
+      border: 2px solid #ffd600;
+    }
+    .back-btn:hover {
+      transform: translateY(-3px) scale(1.05);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+      background: #fff176;
+    }
+
+    /* Título */
+    h1 {
+      text-align: center;
+      font-size: 52px;
+      margin-bottom: 40px;
+      text-shadow: 4px 4px 0px #ff6b35, 6px 6px 0px #c41e3a;
+      letter-spacing: 3px;
+      transform: rotate(-2deg);
+      margin-top: 20px;
+    }
+
+    /* Leyenda de estados */
+    .legend {
+      display: flex;
+      justify-content: center;
+      gap: 30px;
+      margin-bottom: 30px;
+      flex-wrap: wrap;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-family: 'Arial Rounded MT Bold', sans-serif;
+      font-size: 16px;
+      background: rgba(255, 255, 255, 0.2);
+      padding: 8px 16px;
+      border-radius: 20px;
+      backdrop-filter: blur(10px);
+    }
+
+    .legend-color {
+      width: 20px;
+      height: 20px;
+      border-radius: 6px;
+    }
+
+    .available-color { background: #4caf50; }
+    .occupied-color { background: #ff5a5a; }
+    .reserved-color { background: #64b5f6; }
+    .selected-color { background: #ffeb3b; }
+
+    /* Grid de mesas */
+    .tables-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 30px 40px;
+      max-width: 700px;
+      margin: 0 auto;
+    }
+
+    .table {
+      width: 130px;
+      height: 130px;
+      background: white;
+      border-radius: 25px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-size: 42px;
+      color: #333;
+      position: relative;
+      border: 4px solid transparent;
+    }
+
+    .table:hover:not(.occupied):not(.reserved) {
+      transform: translateY(-10px) scale(1.05);
+      box-shadow: 0 20px 35px rgba(0,0,0,0.3);
+    }
+
+    .table.available { 
+      background: #f8f9fa; 
+      animation: pulse 2s infinite;
+    }
+    .table.occupied { 
+      background: #ff5a5a; 
+      color: white; 
+      cursor: not-allowed; 
+    }
+    .table.reserved { 
+      background: #64b5f6; 
+      color: white; 
+      cursor: not-allowed; 
+    }
+    .table.selected {
+      border-color: #ffeb3b;
+      box-shadow: 0 0 0 4px #ffeb3b, 0 15px 30px rgba(0,0,0,0.3);
+      transform: scale(1.05);
+    }
+
+    @keyframes pulse {
+      0% { box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+      50% { box-shadow: 0 10px 25px rgba(76, 175, 80, 0.4); }
+      100% { box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+    }
+
+    .table .status {
+      font-size: 14px;
+      margin-top: 8px;
+      font-family: 'Arial Rounded MT Bold', sans-serif;
+      font-weight: bold;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .table .capacity {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      background: rgba(0,0,0,0.1);
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-family: 'Arial Rounded MT Bold', sans-serif;
+    }
+
+    /* Botones inferiores */
+    .bottom-buttons {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 60px;
+      padding: 0 30px;
+    }
+
+    .btn {
+      padding: 16px 32px;
+      border: none;
+      border-radius: 50px;
+      font-size: 20px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .btn-close {
+      background: #ff5a5a;
+      color: white;
+    }
+
+    .btn-confirm {
+      background: #4c8c5e;
+      color: white;
+    }
+
+    .btn:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 30px rgba(0,0,0,0.3);
+    }
+
+    .btn:active {
+      transform: translateY(-2px);
+    }
+
+    /* Snackbar */
+    .snackbar {
+      position: fixed;
+      bottom: -100px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(20px);
+      border-radius: 20px;
+      padding: 20px 30px;
+      box-shadow: 0 15px 35px rgba(0,0,0,0.3);
+      display: flex;
+      align-items: center;
+      gap: 20px;
+      transition: bottom 0.4s ease;
+      z-index: 1000;
+      border: 2px solid rgba(255, 255, 255, 0.5);
+    }
+
+    .snackbar.show {
+      bottom: 30px;
+    }
+
+    .snackbar-message {
+      font-family: 'Arial Rounded MT Bold', sans-serif;
+      color: #333;
+      font-size: 18px;
+      font-weight: bold;
+    }
+
+    .snackbar-actions {
+      display: flex;
+      gap: 12px;
+    }
+
+    .snackbar-btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 25px;
+      font-family: 'Arial Rounded MT Bold', sans-serif;
+      font-size: 14px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.3s;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+
+    .snackbar-btn.reserve {
+      background: #64b5f6;
+      color: white;
+    }
+
+    .snackbar-btn.occupy {
+      background: #4caf50;
+      color: white;
+    }
+
+    .snackbar-btn.cancel {
+      background: #ff5a5a;
+      color: white;
+    }
+
+    .snackbar-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 15px rgba(0,0,0,0.3);
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .tables-grid {
+        grid-template-columns: repeat(3, 1fr);
+        gap: 25px;
+      }
+      h1 { font-size: 42px; }
+      .table { width: 110px; height: 110px; font-size: 36px; }
+      .legend { gap: 15px; }
+      .legend-item { font-size: 14px; padding: 6px 12px; }
+    }
+
+    @media (max-width: 480px) {
+      .tables-grid { grid-template-columns: repeat(2, 1fr); }
+      .bottom-buttons { flex-direction: column; gap: 20px; align-items: center; }
+      .btn { width: 80%; }
+      .snackbar { 
+        flex-direction: column; 
+        width: 90%; 
+        text-align: center;
+        padding: 15px 20px;
+      }
+      .snackbar-actions { justify-content: center; }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="container">
+    <a href="#" class="back-btn">← REGRESAR</a>
+
+    <h1>SELECCIONAR MESA</h1>
+
+    <!-- Leyenda de estados -->
+    <div class="legend">
+      <div class="legend-item">
+        <div class="legend-color available-color"></div>
+        <span>DISPONIBLE</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color occupied-color"></div>
+        <span>OCUPADO</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color reserved-color"></div>
+        <span>RESERVADO</span>
+      </div>
+      <div class="legend-item">
+        <div class="legend-color selected-color"></div>
+        <span>SELECCIONADO</span>
+      </div>
+    </div>
+
+    <!-- Grid de mesas -->
+    <div class="tables-grid">
+      <div class="table available" data-table="1">
+        <div>01</div>
+        <div class="capacity">4</div>
+      </div>
+      <div class="table occupied" data-table="2">
+        <div>02</div>
+        <div class="status">OCUPADO</div>
+        <div class="capacity">6</div>
+      </div>
+      <div class="table available" data-table="3">
+        <div>03</div>
+        <div class="capacity">2</div>
+      </div>
+      <div class="table reserved" data-table="4">
+        <div>04</div>
+        <div class="status">RESERVADO</div>
+        <div class="capacity">4</div>
+      </div>
+
+      <div class="table available" data-table="5">
+        <div>05</div>
+        <div class="capacity">8</div>
+      </div>
+      <div class="table available" data-table="6">
+        <div>06</div>
+        <div class="capacity">4</div>
+      </div>
+      <div class="table reserved" data-table="7">
+        <div>07</div>
+        <div class="status">RESERVADO</div>
+        <div class="capacity">6</div>
+      </div>
+      <div class="table available" data-table="8">
+        <div>08</div>
+        <div class="capacity">2</div>
+      </div>
+
+      <div class="table available" data-table="9">
+        <div>09</div>
+        <div class="capacity">4</div>
+      </div>
+      <div class="table available" data-table="10">
+        <div>10</div>
+        <div class="capacity">6</div>
+      </div>
+      <div class="table occupied" data-table="11">
+        <div>11</div>
+        <div class="status">OCUPADO</div>
+        <div class="capacity">4</div>
+      </div>
+      <div class="table available" data-table="12">
+        <div>12</div>
+        <div class="capacity">2</div>
+      </div>
+    </div>
+
+    <div class="bottom-buttons">
+      <button class="btn btn-close">CERRAR SESIÓN ←</button>
+      <button class="btn btn-confirm">CONFIRMAR MESA</button>
+    </div>
+  </div>
+
+  <!-- Snackbar para acciones de mesa -->
+  <div class="snackbar" id="snackbar">
+    <div class="snackbar-message" id="snackbarMessage">Selecciona una acción para la mesa</div>
+    <div class="snackbar-actions">
+      <button class="snackbar-btn reserve" id="reserveBtn">RESERVAR</button>
+      <button class="snackbar-btn occupy" id="occupyBtn">OCUPAR</button>
+      <button class="snackbar-btn cancel" id="cancelBtn">CANCELAR</button>
+    </div>
+  </div>
+
+  <script>
+    // Variables globales
+    let selectedTable = null;
+    const snackbar = document.getElementById('snackbar');
+    const snackbarMessage = document.getElementById('snackbarMessage');
+    const reserveBtn = document.getElementById('reserveBtn');
+    const occupyBtn = document.getElementById('occupyBtn');
+    const cancelBtn = document.getElementById('cancelBtn');
+
+    // Inicializar eventos de las mesas
+    document.querySelectorAll('.table.available').forEach(table => {
+      table.addEventListener('click', handleTableClick);
+    });
+
+    // Función para manejar clic en mesa
+    function handleTableClick(event) {
+      const table = event.currentTarget;
+      const tableNumber = table.getAttribute('data-table');
+      
+      // Remover selección anterior
+      document.querySelectorAll('.table.selected').forEach(t => {
+        t.classList.remove('selected');
+      });
+      
+      // Seleccionar nueva mesa
+      table.classList.add('selected');
+      selectedTable = tableNumber;
+      
+      // Mostrar snackbar con opciones
+      showSnackbar(`Mesa ${tableNumber} seleccionada. ¿Qué deseas hacer?`);
+    }
+
+    // Función para mostrar snackbar
+    function showSnackbar(message) {
+      snackbarMessage.textContent = message;
+      snackbar.classList.add('show');
+    }
+
+    // Función para ocultar snackbar
+    function hideSnackbar() {
+      snackbar.classList.remove('show');
+      // Remover selección
+      document.querySelectorAll('.table.selected').forEach(t => {
+        t.classList.remove('selected');
+      });
+      selectedTable = null;
+    }
+
+    // Eventos de los botones del snackbar
+    reserveBtn.addEventListener('click', () => {
+      if (selectedTable) {
+        reserveTable(selectedTable);
+        hideSnackbar();
+      }
+    });
+
+    occupyBtn.addEventListener('click', () => {
+      if (selectedTable) {
+        occupyTable(selectedTable);
+        hideSnackbar();
+      }
+    });
+
+    cancelBtn.addEventListener('click', hideSnackbar);
+
+    // Función para reservar mesa
+    function reserveTable(tableNumber) {
+      const table = document.querySelector(`.table[data-table="${tableNumber}"]`);
+      if (table && table.classList.contains('available')) {
+        table.classList.remove('available');
+        table.classList.remove('selected');
+        table.classList.add('reserved');
+        table.innerHTML = `
+          <div>${tableNumber}</div>
+          <div class="status">RESERVADO</div>
+          <div class="capacity">${table.querySelector('.capacity').textContent}</div>
+        `;
+        
+        // Mostrar confirmación
+        showSnackbar(`✅ Mesa ${tableNumber} reservada exitosamente`);
+        setTimeout(hideSnackbar, 3000);
+        
+        console.log(`Mesa ${tableNumber} reservada`);
+      }
+    }
+
+    // Función para ocupar mesa
+    function occupyTable(tableNumber) {
+      const table = document.querySelector(`.table[data-table="${tableNumber}"]`);
+      if (table && table.classList.contains('available')) {
+        table.classList.remove('available');
+        table.classList.remove('selected');
+        table.classList.add('occupied');
+        table.innerHTML = `
+          <div>${tableNumber}</div>
+          <div class="status">OCUPADO</div>
+          <div class="capacity">${table.querySelector('.capacity').textContent}</div>
+        `;
+        
+        // Mostrar confirmación
+        showSnackbar(`✅ Mesa ${tableNumber} ocupada exitosamente`);
+        setTimeout(hideSnackbar, 3000);
+        
+        console.log(`Mesa ${tableNumber} ocupada`);
+      }
+    }
+
+    // Botón de confirmar mesa
+    document.querySelector('.btn-confirm').addEventListener('click', () => {
+      if (selectedTable) {
+        occupyTable(selectedTable);
+      } else {
+        showSnackbar('⚠️ Por favor selecciona una mesa primero');
+        setTimeout(hideSnackbar, 3000);
+      }
+    });
+
+    // Botón de cerrar sesión
+    document.querySelector('.btn-close').addEventListener('click', () => {
+      if (confirm('¿Estás seguro de que deseas cerrar sesión?')) {
+        window.location.href = '/login';
+      }
+    });
+
+    // Botón de regresar
+    document.querySelector('.back-btn').addEventListener('click', (e) => {
+      e.preventDefault();
+      if (confirm('¿Regresar al menú principal? Los cambios no guardados se perderán.')) {
+        window.location.href = '/menu';
+      }
+    });
+
+    // Cerrar snackbar al hacer clic fuera
+    document.addEventListener('click', (e) => {
+      if (snackbar.classList.contains('show') && !snackbar.contains(e.target) && 
+          !e.target.closest('.table.available')) {
+        hideSnackbar();
+      }
+    });
+  </script>
+</body>
+</html>

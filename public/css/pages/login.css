@@ -1,0 +1,216 @@
+/* public/css/pages/login.css - CORREGIDO */
+@import url('https://fonts.googleapis.com/css2?family=Bangers&display=swap');
+
+.container {
+  display: flex;
+  align-items: center;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(15px);
+  padding: 60px 80px;
+  border-radius: 30px;
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.25);
+  gap: 80px;
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  max-width: 1200px; /* ✅ AÑADIDO: Limitar ancho máximo */
+  width: 100%; /* ✅ AÑADIDO: Asegurar que ocupe el ancho disponible */
+  margin: 20px auto; /* ✅ AÑADIDO: Centrar y dar espacio */
+}
+
+.container:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+}
+
+.logo {
+  width: 280px;
+  height: 280px;
+  background: #fff8e1;
+  border-radius: 30px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.2);
+  transition: transform 0.3s ease;
+  flex-shrink: 0; /* ✅ AÑADIDO: Evitar que se reduzca */
+}
+
+.logo:hover {
+  transform: scale(1.05);
+}
+
+.logo img {
+  width: 85%;
+  filter: drop-shadow(0 5px 10px rgba(0, 0, 0, 0.2));
+}
+
+/* Tipografía del título */
+.title-wrapper {
+  margin-bottom: 50px;
+  text-align: center;
+}
+
+.welcome-title {
+  font-family: "Bangers", "Impact", "Arial Black", sans-serif;
+  font-size: 58px;
+  line-height: 1.1;
+  color: #fff;
+  text-shadow: 
+    4px 4px 0px #ff6b35,
+    7px 7px 0px #c41e3a,
+    0 0 15px rgba(0,0,0,0.4);
+  letter-spacing: 3px;
+  transform: rotate(-4deg);
+  display: inline-block;
+  margin: 0;
+}
+
+.welcome-title span {
+  display: block;
+  font-size: 68px;
+  transform: rotate(-2deg);
+  margin-top: -10px;
+}
+
+.buttons {
+  margin-top: 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+.forgot-password {
+  text-align: center;
+  margin-top: 20px;
+}
+
+.forgot-password a {
+  color: rgba(255, 255, 255, 0.9);
+  text-decoration: none;
+  font-size: 16px;
+  transition: color 0.3s ease;
+}
+
+.forgot-password a:hover {
+  color: white;
+  text-decoration: underline;
+}
+
+.help {
+  position: fixed; /* ✅ CAMBIADO: fixed en lugar de absolute */
+  bottom: 30px;
+  right: 40px;
+  background: #ff5a5a;
+  color: white;
+  width: 70px;
+  height: 70px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 36px;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  z-index: 10;
+}
+
+.help:hover {
+  transform: scale(1.1) rotate(15deg);
+  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.3);
+}
+
+/* Responsive Design para Login */
+@media (max-width: 1024px) {
+  .container {
+    flex-direction: column;
+    gap: 50px;
+    padding: 50px 60px;
+    margin: 40px 20px; /* ✅ AÑADIDO: Más espacio en tablets */
+  }
+  
+  .logo {
+    width: 200px;
+    height: 200px;
+  }
+  
+  .welcome-title {
+    font-size: 46px;
+  }
+  
+  .welcome-title span {
+    font-size: 54px;
+  }
+}
+
+@media (max-width: 600px) {
+  body {
+    padding: 10px; /* ✅ AÑADIDO: Menos padding en móviles */
+    align-items: flex-start; /* ✅ CAMBIADO: Alinear arriba en móviles */
+  }
+
+  .container {
+    padding: 40px 25px; /* ✅ REDUCIDO: Menos padding interno */
+    margin: 20px 10px; /* ✅ REDUCIDO: Menos margen externo */
+    gap: 40px; /* ✅ REDUCIDO: Menor gap */
+  }
+  
+  .logo {
+    width: 150px;
+    height: 150px;
+  }
+  
+  .welcome-title {
+    font-size: 36px;
+  }
+  
+  .welcome-title span {
+    font-size: 42px;
+  }
+  
+  .input-wrapper input {
+    font-size: 16px;
+    padding: 15px 0 15px 45px;
+  }
+  
+  .btn {
+    padding: 15px 25px; /* ✅ REDUCIDO: Padding lateral menor */
+    font-size: 18px;
+  }
+  
+  .help {
+    width: 60px;
+    height: 60px;
+    font-size: 30px;
+    bottom: 20px;
+    right: 20px;
+  }
+
+  /* ✅ AÑADIDO: Para pantallas muy pequeñas */
+  @media (max-width: 380px) {
+    .container {
+      padding: 30px 20px;
+      margin: 10px 5px;
+    }
+    
+    .welcome-title {
+      font-size: 32px;
+    }
+    
+    .welcome-title span {
+      font-size: 38px;
+    }
+    
+    .logo {
+      width: 120px;
+      height: 120px;
+    }
+  }
+}
+
+/* ✅ AÑADIDO: Para pantallas muy altas */
+@media (min-height: 1000px) {
+  .container {
+    margin: 50px auto;
+  }
+}

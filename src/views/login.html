@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pizza Brothers - Login</title>
+  
+  <link href="https://fonts.googleapis.com/css2?family=Bangers&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="stylesheet" href="/css/components/buttons.css">
+  <link rel="stylesheet" href="/css/components/forms.css">
+  <link rel="stylesheet" href="/css/components/inputs.css">
+  <link rel="stylesheet" href="/css/pages/login.css">
+</head>
+<body>
+
+  <div class="particles" id="particles"></div>
+
+  <div class="container fade-in-up">
+    <div class="logo">
+      <img src="/images/image.png" alt="Pizza Brothers Logo">
+    </div>
+
+    <!-- ✅ FORMULARIO CON USERNAME -->
+    <form class="login-box" id="loginForm">
+      <div class="title-wrapper">
+        <h1 class="welcome-title">
+          BIENVENIDO A<br>
+          <span>PIZZA BROTHERS</span>
+        </h1>
+      </div>
+
+      <div class="input-group">
+        <div class="input-wrapper user">
+          <!-- ✅ CAMBIADO: username en lugar de email -->
+          <input type="text" id="username" name="username" placeholder="Usuario" required>
+        </div>
+      </div>
+
+      <div class="input-group">
+        <div class="input-wrapper pass">
+          <input type="password" id="password" name="password" placeholder="Contraseña" required>
+        </div>
+      </div>
+
+      <div class="buttons">
+        <button type="submit" class="btn btn-primary">Iniciar sesión</button>
+        <button type="button" class="btn btn-secondary" id="registerBtn">Regístrate</button>
+      </div>
+      
+      <div class="forgot-password">
+        <a href="/register">¿Olvidaste tu contraseña?</a>
+      </div>
+    </form>
+  </div>
+
+  <div class="help">?</div>
+
+  <script type="module" src="/js/pages/login.js"></script>
+</body>
+</html>
