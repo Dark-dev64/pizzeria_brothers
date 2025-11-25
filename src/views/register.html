@@ -53,6 +53,18 @@
         </div>
       </div>
       
+      <!-- Usuario -->
+      <div class="form-group">
+        <label for="username" class="required">
+          <i class="fas fa-user-circle label-icon"></i>
+          Nombre de Usuario
+        </label>
+        <div class="input-with-icon">
+          <input type="text" id="username" name="username" placeholder="Crea tu nombre de usuario" required>
+          <i class="fas fa-user input-icon"></i>
+        </div>
+      </div>
+      
       <!-- Email (opcional) -->
       <div class="form-group">
         <label for="email" class="optional">
@@ -95,7 +107,7 @@
         </div>
       </div>
       
-      <!-- Selección de Rol -->
+      <!-- Selección de Rol - SECCIÓN ACTUALIZADA -->
       <div class="form-group">
         <label for="id_rol" class="required">
           <i class="fas fa-user-tie label-icon"></i>
@@ -104,15 +116,22 @@
         <div class="input-with-icon">
           <select id="id_rol" name="id_rol" required>
             <option value="">Selecciona tu rol...</option>
-            <option value="1">👤 Cliente - Quiero ordenar pizzas</option>
-            <option value="2">👨‍🍳 Repartidor - Quiero trabajar entregando</option>
-            <option value="3">👨‍💼 Administrador - Gestionar la pizzería</option>
-            <option value="4">🔧 Cocina - Preparar las pizzas</option>
+            <!-- Los roles se cargarán dinámicamente desde la API -->
           </select>
           <i class="fas fa-briefcase input-icon"></i>
         </div>
-        <div class="role-description" id="roleDescription">
-          Selecciona el tipo de usuario que mejor describa tu propósito
+        <!-- ✅ DESCRIPCIÓN ACTUALIZADA -->
+        <div class="role-description" id="roleDescription" style="
+          margin-top: 8px; 
+          padding: 12px; 
+          background: rgba(255, 107, 53, 0.1); 
+          border-radius: 8px; 
+          font-size: 14px; 
+          color: #fff;
+          border-left: 3px solid #ff6b35;
+          font-style: italic;
+        ">
+          Selecciona un rol para ver su descripción
         </div>
       </div>
       

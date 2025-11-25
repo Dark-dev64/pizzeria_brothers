@@ -1,13 +1,17 @@
-// src/controllers/authController.js - ACTUALIZADO PARA TU SP
+// src/controllers/authController.js - ACTUALIZADO PARA SP
 const User = require('../models/User');
 const { MESSAGES, ROLES } = require('../../config/constants');
 const jwt = require('jsonwebtoken');
 
 class AuthController {
-  // Registro de usuario
+  // Registro de usuario - ACTUALIZADO para usar tu SP
   static async register(req, res) {
     try {
-      const { nombre, apellido, username, password, id_rol, additional_info } = req.body;
+      const { username, password, nombre, apellido, email, id_rol } = req.body;
+
+      console.log('📝 Datos recibidos para registro:', {
+        username, nombre, apellido, email, id_rol
+      });
 
       // Validaciones básicas
       if (!nombre || !apellido || !username || !password) {
@@ -24,39 +28,50 @@ class AuthController {
         });
       }
 
-      // Verificar si el username ya existe
-      const usernameExists = await User.usernameExists(username);
-      if (usernameExists) {
-        return res.status(400).json({
-          success: false,
-          message: MESSAGES.ERROR.USER_EXISTS
-        });
-      }
-
-      // Crear usuario
+      // Crear usuario usando tu SP
       const user = await User.create({
+        username,
+        password,
         nombre,
         apellido,
-        username: username,
-        password,
-        id_rol: id_rol || ROLES.CLIENTE,
-        additional_info: additional_info || null
+        email: email || null,
+        id_rol: id_rol || ROLES.CLIENTE
       });
 
       res.status(201).json({
         success: true,
         message: MESSAGES.SUCCESS.REGISTER,
         data: {
-          id: user.id,
+          id: user.id_usuario,
+          username: user.username,
           nombre: user.nombre,
           apellido: user.apellido,
-          username: user.username,
-          id_rol: user.id_rol
+          email: user.email,
+          id_rol: user.id_rol,
+          rol_nombre: user.nombre_rol
         }
       });
 
     } catch (error) {
-      console.error('Error en registro:', error);
+      console.error('❌ Error en registro:', error);
+      
+      // Manejar errores específicos del SP
+      if (error.message.includes('ya existe') || 
+          error.message.includes('ya está registrado')) {
+        return res.status(400).json({
+          success: false,
+          message: error.message
+        });
+      }
+      
+      if (error.message.includes('obligatorio') || 
+          error.message.includes('no existe')) {
+        return res.status(400).json({
+          success: false,
+          message: error.message
+        });
+      }
+
       res.status(500).json({
         success: false,
         message: error.message || MESSAGES.ERROR.DB_CONNECTION
@@ -64,7 +79,7 @@ class AuthController {
     }
   }
 
-  // Login de usuario - CORREGIDO PARA TU SP
+  // Login de usuario (mantener igual)
   static async login(req, res) {
     try {
       const { username, password } = req.body;
@@ -76,7 +91,7 @@ class AuthController {
         });
       }
 
-      // Autenticar usuario usando tu SP
+      // Autenticar usuario
       const user = await User.login(username, password);
 
       // Generar token JWT
@@ -102,27 +117,16 @@ class AuthController {
             apellido: user.apellido,
             email: user.email,
             id_rol: user.id_rol,
-            rol_nombre: user.rol_nombre,
-            activo: user.activo
+            rol_nombre: user.rol_nombre
           }
         }
       });
 
     } catch (error) {
       console.error('Error en login:', error);
-      
-      // Manejar errores específicos de tu SP
-      let statusCode = 401;
-      let errorMessage = error.message || MESSAGES.ERROR.INVALID_CREDENTIALS;
-      
-      if (error.message.includes('Usuario inactivo')) {
-        statusCode = 403;
-        errorMessage = 'Tu cuenta está inactiva';
-      }
-      
-      res.status(statusCode).json({
+      res.status(401).json({
         success: false,
-        message: errorMessage
+        message: error.message || MESSAGES.ERROR.INVALID_CREDENTIALS
       });
     }
   }
