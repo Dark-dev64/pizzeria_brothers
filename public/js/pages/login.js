@@ -1,4 +1,4 @@
-// public/js/pages/login.js - VERSIÓN OPTIMIZADA
+// public/js/pages/login.js - VERSIÓN CORREGIDA
 import { initRippleButtons } from '../components/buttons.js';
 import { initParticles } from '../components/particles.js';
 
@@ -50,24 +50,24 @@ const DOM = {
     }
 };
 
-// Gestión de errores de campos
+// Gestión de errores de campos - CORREGIDO
 const FieldManager = {
     showError(fieldId, message) {
         const field = elements[fieldId];
         if (!field) return;
 
-        const inputWrapper = field.closest('.input-wrapper');
+        const inputContainer = field.closest('.input-with-icon'); // ✅ Cambiado a .input-with-icon
         let errorElement = document.getElementById(`${fieldId}Error`);
 
         if (!errorElement) {
             errorElement = DOM.createElement('div', 'error-message');
             errorElement.id = `${fieldId}Error`;
-            inputWrapper?.parentNode.appendChild(errorElement);
+            inputContainer?.parentNode.appendChild(errorElement);
         }
 
         errorElement.textContent = message;
-        inputWrapper?.classList.add('error');
-        inputWrapper?.classList.remove('valid');
+        inputContainer?.classList.add('error');
+        inputContainer?.classList.remove('valid');
         formState.errors.set(fieldId, message);
     },
 
@@ -75,11 +75,11 @@ const FieldManager = {
         const field = elements[fieldId];
         if (!field) return;
 
-        const inputWrapper = field.closest('.input-wrapper');
+        const inputContainer = field.closest('.input-with-icon'); // ✅ Cambiado a .input-with-icon
         const errorElement = document.getElementById(`${fieldId}Error`);
 
         errorElement?.remove();
-        inputWrapper?.classList.remove('error');
+        inputContainer?.classList.remove('error');
         formState.errors.delete(fieldId);
     },
 
@@ -87,9 +87,9 @@ const FieldManager = {
         const field = elements[fieldId];
         if (!field) return;
 
-        const inputWrapper = field.closest('.input-wrapper');
-        inputWrapper?.classList.add('valid');
-        inputWrapper?.classList.remove('error');
+        const inputContainer = field.closest('.input-with-icon'); // ✅ Cambiado a .input-with-icon
+        inputContainer?.classList.add('valid');
+        inputContainer?.classList.remove('error');
         this.clearError(fieldId);
     },
 

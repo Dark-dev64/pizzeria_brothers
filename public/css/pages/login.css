@@ -1,4 +1,4 @@
-/* public/css/pages/login.css - VERSIÓN UNIFICADA Y CORREGIDA */
+/* public/css/pages/login.css - VERSIÓN CORREGIDA */
 @import url('https://fonts.googleapis.com/css2?family=Bangers&display=swap');
 
 .container {
@@ -73,7 +73,7 @@
   margin-top: -10px;
 }
 
-/* FORMULARIO UNIFICADO - ESTILOS COHERENTES */
+/* FORMULARIO CORREGIDO - INPUTS CON BORDER RADIUS 30px */
 .login-box {
   flex: 1;
   min-width: 400px;
@@ -83,27 +83,29 @@
   margin-bottom: 25px;
 }
 
-.input-wrapper {
+/* CONTENEDOR DEL INPUT CON BORDER RADIUS */
+.input-with-icon {
   position: relative;
   background: rgba(255, 255, 255, 0.35);
-  border-radius: 50px;
-  padding: 5px 20px;
+  border-radius: 30px; /* ✅ Border radius 30px */
   backdrop-filter: blur(10px);
   border: 2px solid transparent;
   transition: all 0.3s ease;
   margin-bottom: 10px;
+  overflow: hidden; /* ✅ Importante para que el contenido respete el border radius */
 }
 
-.input-wrapper:focus-within {
+.input-with-icon:focus-within {
   border-color: #4c8c5e;
   background: rgba(255, 255, 255, 0.45);
   transform: scale(1.02);
   box-shadow: 0 0 0 3px rgba(76, 140, 94, 0.3);
 }
 
-.input-wrapper input {
+/* INPUT QUE SE ADHIERE AL BORDER RADIUS */
+.input-with-icon input {
   width: 100%;
-  padding: 18px 0 18px 50px;
+  padding: 18px 20px 18px 60px; /* ✅ Padding izquierdo aumentado para el ícono */
   border: none;
   background: transparent;
   color: white;
@@ -111,57 +113,47 @@
   outline: none;
   transition: all 0.3s ease;
   font-family: 'Arial Rounded MT Bold', sans-serif;
+  border-radius: 30px; /* ✅ Mismo border radius que el contenedor */
 }
 
-.input-wrapper input::placeholder {
+.input-with-icon input::placeholder {
   color: rgba(255, 255, 255, 0.8);
 }
 
-/* ICONOS UNIFICADOS - SOLO FONT AWESOME */
-.input-wrapper::before {
-  content: '';
+/* ÍCONOS POSICIONADOS DENTRO DEL INPUT */
+.input-icon {
   position: absolute;
-  left: 18px;
+  left: 25px;
   top: 50%;
   transform: translateY(-50%);
-  font-family: 'Font Awesome 6 Free';
-  font-weight: 900;
   color: rgba(255, 255, 255, 0.7);
   z-index: 1;
-  font-size: 16px;
+  font-size: 18px;
   transition: transform 0.3s ease;
 }
 
-.input-wrapper.user::before {
-  content: '\f007'; /* fa-user */
-}
-
-.input-wrapper.pass::before {
-  content: '\f023'; /* fa-lock */
-}
-
-.input-wrapper:focus-within::before {
+.input-with-icon:focus-within .input-icon {
   transform: translateY(-50%) scale(1.2);
   color: #4c8c5e;
 }
 
-/* ESTADOS DE VALIDACIÓN UNIFICADOS */
-.input-wrapper.error {
+/* ESTADOS DE VALIDACIÓN */
+.input-with-icon.error {
   border-color: #ff6b6b !important;
   background: rgba(255, 107, 107, 0.1) !important;
   animation: shake 0.5s ease-in-out;
 }
 
-.input-wrapper.error:focus-within {
+.input-with-icon.error:focus-within {
   box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.2) !important;
 }
 
-.input-wrapper.valid {
+.input-with-icon.valid {
   border-color: #4caf50 !important;
   background: rgba(76, 175, 80, 0.1) !important;
 }
 
-.input-wrapper.valid:focus-within {
+.input-with-icon.valid:focus-within {
   box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.2) !important;
 }
 
@@ -184,7 +176,7 @@
   font-size: 16px;
 }
 
-/* BOTONES UNIFICADOS */
+/* BOTONES */
 .buttons {
   margin-top: 40px;
   display: flex;
@@ -425,9 +417,14 @@
     font-size: 42px;
   }
   
-  .input-wrapper input {
+  .input-with-icon input {
     font-size: 16px;
-    padding: 15px 0 15px 45px;
+    padding: 15px 20px 15px 55px;
+  }
+  
+  .input-icon {
+    left: 20px;
+    font-size: 16px;
   }
   
   .btn {
