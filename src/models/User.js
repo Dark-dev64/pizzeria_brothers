@@ -1,10 +1,8 @@
-// src/models/User.js - ACTUALIZADO para SP de registro
 const { executeSP, executeQuery } = require('../../config/database');
 const { SP_NAMES } = require('../../config/constants');
 const bcrypt = require('bcryptjs');
 
 class User {
-  // Crear usuario usando tu SP - ACTUALIZADO
   static async create(userData) {
     try {
       const {
@@ -16,15 +14,7 @@ class User {
         id_rol = 1
       } = userData;
 
-      console.log('🔐 Creando usuario con datos:', { username, nombre, apellido, id_rol });
-
-      // Hash de contraseña usando bcrypt (o el método que uses)
-      const saltRounds = 12;
-      const password_hash = await bcrypt.hash(password, saltRounds);
-
-      console.log('🔑 Password hash generado');
-
-      // Llamar a tu SP de creación
+      const password_hash = await bcrypt.hash(password, 12);
       const result = await executeSP(SP_NAMES.USUARIO_CREAR, [
         username,
         password_hash,
@@ -34,13 +24,9 @@ class User {
         id_rol
       ]);
 
-      console.log('✅ Usuario creado exitosamente:', result[0]);
       return result[0];
 
     } catch (error) {
-      console.error('❌ Error en User.create:', error);
-      
-      // Manejar errores específicos del SP
       if (error.code === 'ER_DUP_ENTRY' || error.message.includes('Duplicate')) {
         throw new Error('El usuario ya está registrado');
       }
@@ -53,42 +39,60 @@ class User {
         throw new Error(error.message);
       }
       
-      throw error;
+      throw new Error('Error al crear usuario');
     }
   }
 
-  // Login usando SP (mantener igual o ajustar según tu SP de login)
   static async login(username, password) {
     try {
-      // Hash de la contraseña para comparar
-      const password_hash = await bcrypt.hash(password, 12);
+      const result = await executeSP(SP_NAMES.USUARIO_LOGIN, [username]);
       
-      // Llamar al SP de login
-      const result = await executeSP(SP_NAMES.USUARIO_LOGIN, [
-        username,
-        password_hash
-      ]);
-      
-      if (result.length === 0) {
-        throw new Error('Credenciales inválidas');
+      if (!result || result.length === 0) {
+        throw new Error('USER_NOT_FOUND');
       }
 
       const user = result[0];
-      return user;
+
+      if (user.activo !== 1 && user.activo !== true) {
+        throw new Error('USER_INACTIVE');
+      }
+
+      if (!user.password_hash) {
+        throw new Error('INVALID_USER_DATA');
+      }
+
+      const isPasswordValid = await bcrypt.compare(password, user.password_hash);
+      
+      if (!isPasswordValid) {
+        throw new Error('INVALID_PASSWORD');
+      }
+
+      const { password_hash, activo, ...userSafe } = user;
+      return userSafe;
 
     } catch (error) {
-      console.error('Error en User.login:', error);
-      throw error;
+      if (['USER_NOT_FOUND', 'USER_INACTIVE', 'INVALID_PASSWORD', 'INVALID_USER_DATA'].includes(error.message)) {
+        throw error;
+      }
+      
+      if (error.message.includes('Usuario no encontrado') || error.message.includes('no existe')) {
+        throw new Error('USER_NOT_FOUND');
+      }
+      
+      if (error.message.includes('inactivo')) {
+        throw new Error('USER_INACTIVE');
+      }
+      
+      throw new Error('LOGIN_ERROR');
     }
   }
 
-  // Resto de métodos se mantienen igual...
   static async findById(id) {
     try {
       const result = await executeSP(SP_NAMES.USUARIO_OBTENER, [id]);
       return result.length > 0 ? result[0] : null;
     } catch (error) {
-      throw error;
+      throw new Error('Error al buscar usuario');
     }
   }
 
@@ -100,19 +104,16 @@ class User {
       );
       return result || null;
     } catch (error) {
-      throw error;
+      throw new Error('Error al buscar usuario por username');
     }
   }
 
   static async getRoles() {
     try {
-      console.log('📋 Obteniendo roles con SP:', SP_NAMES.ROLES_LISTAR);
       const result = await executeSP(SP_NAMES.ROLES_LISTAR);
-      console.log('✅ Roles obtenidos:', result);
       return result;
     } catch (error) {
-      console.error('❌ Error obteniendo roles:', error);
-      throw error;
+      throw new Error('Error al obtener roles');
     }
   }
 
@@ -121,7 +122,33 @@ class User {
       const user = await this.findByUsername(username);
       return user !== null;
     } catch (error) {
-      throw error;
+      throw new Error('Error al verificar usuario');
+    }
+  }
+
+  static async update(userId, userData) {
+    try {
+      const { nombre, apellido, email } = userData;
+      
+      const result = await executeSP(SP_NAMES.USUARIO_ACTUALIZAR, [
+        userId,
+        nombre,
+        apellido,
+        email
+      ]);
+      
+      return result[0];
+    } catch (error) {
+      throw new Error('Error al actualizar usuario');
+    }
+  }
+
+  static async findAll() {
+    try {
+      const result = await executeSP(SP_NAMES.USUARIOS_LISTAR);
+      return result;
+    } catch (error) {
+      throw new Error('Error al obtener usuarios');
     }
   }
 }

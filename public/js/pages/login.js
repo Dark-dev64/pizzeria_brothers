@@ -1,285 +1,345 @@
-// public/js/pages/login.js - VERSIÓN MEJORADA
+// public/js/pages/login.js - VERSIÓN OPTIMIZADA
 import { initRippleButtons } from '../components/buttons.js';
 import { initParticles } from '../components/particles.js';
 
-// Estado del formulario
-let formState = {
-    isLoading: false,
-    errors: {}
+// Constantes
+const ROUTES = {
+    1: '/cliente',
+    2: '/cajero', 
+    3: '/admin',
+    4: '/cocina',
+    5: '/mesero'
 };
 
-// Función para mostrar errores en campos
-function showFieldError(fieldId, message) {
-    const field = document.getElementById(fieldId);
-    const inputWrapper = field?.closest('.input-wrapper');
-    
-    // Crear o actualizar elemento de error
-    let errorElement = document.getElementById(fieldId + 'Error');
-    if (!errorElement) {
-        errorElement = document.createElement('div');
-        errorElement.id = fieldId + 'Error';
-        errorElement.className = 'error-message';
-        inputWrapper?.parentNode.appendChild(errorElement);
+const ERROR_MESSAGES = {
+    USER_NOT_FOUND: 'Usuario no encontrado',
+    WRONG_PASSWORD: 'Contraseña incorrecta',
+    REQUIRED_FIELD: 'Este campo es obligatorio',
+    CONNECTION_ERROR: 'Error de conexión. Intenta nuevamente.',
+    LOGIN_SUCCESS: '¡Inicio de sesión exitoso!',
+    LOGIN_ERROR: 'Error en el inicio de sesión'
+};
+
+// Estado del formulario
+const formState = {
+    isLoading: false,
+    errors: new Map()
+};
+
+// Cache de elementos DOM
+const elements = {
+    get username() { return document.getElementById('username'); },
+    get password() { return document.getElementById('password'); },
+    get loginForm() { return document.getElementById('loginForm'); },
+    get registerBtn() { return document.getElementById('registerBtn'); },
+    get submitButton() { return document.querySelector('.btn-primary'); },
+    get registerButton() { return document.querySelector('.btn-secondary'); }
+};
+
+// Utilidades
+const DOM = {
+    createElement(tag, className, innerHTML) {
+        const element = document.createElement(tag);
+        if (className) element.className = className;
+        if (innerHTML) element.innerHTML = innerHTML;
+        return element;
+    },
+
+    showElement(element, show = true) {
+        element.style.display = show ? '' : 'none';
     }
-    
-    errorElement.textContent = message;
-    inputWrapper?.classList.add('error');
-    inputWrapper?.classList.remove('valid');
-    
-    formState.errors[fieldId] = message;
-}
+};
 
-// Función para limpiar errores de campo
-function clearFieldError(fieldId) {
-    const field = document.getElementById(fieldId);
-    const inputWrapper = field?.closest('.input-wrapper');
-    const errorElement = document.getElementById(fieldId + 'Error');
-    
-    if (errorElement) {
-        errorElement.remove();
-    }
-    
-    inputWrapper?.classList.remove('error');
-    delete formState.errors[fieldId];
-}
+// Gestión de errores de campos
+const FieldManager = {
+    showError(fieldId, message) {
+        const field = elements[fieldId];
+        if (!field) return;
 
-// Función para marcar campo como válido
-function markFieldAsValid(fieldId) {
-    const field = document.getElementById(fieldId);
-    const inputWrapper = field?.closest('.input-wrapper');
-    
-    inputWrapper?.classList.add('valid');
-    inputWrapper?.classList.remove('error');
-    clearFieldError(fieldId);
-}
+        const inputWrapper = field.closest('.input-wrapper');
+        let errorElement = document.getElementById(`${fieldId}Error`);
 
-// Validación en tiempo real
-function setupRealTimeValidation() {
-    const fields = ['username', 'password'];
-    
-    fields.forEach(fieldId => {
-        const field = document.getElementById(fieldId);
-        if (field) {
-            field.addEventListener('blur', () => {
-                validateSingleField(fieldId);
-            });
-            
-            field.addEventListener('input', () => {
-                // Limpiar error cuando el usuario empiece a escribir
-                if (field.value.trim() && formState.errors[fieldId]) {
-                    clearFieldError(fieldId);
-                }
-            });
+        if (!errorElement) {
+            errorElement = DOM.createElement('div', 'error-message');
+            errorElement.id = `${fieldId}Error`;
+            inputWrapper?.parentNode.appendChild(errorElement);
         }
-    });
-}
 
-// Validación individual de campos
-function validateSingleField(fieldId) {
-    const field = document.getElementById(fieldId);
-    if (!field) return;
-    
-    const value = field.value.trim();
-    
-    if (!value) {
-        showFieldError(fieldId, 'Este campo es obligatorio');
-    } else {
-        markFieldAsValid(fieldId);
+        errorElement.textContent = message;
+        inputWrapper?.classList.add('error');
+        inputWrapper?.classList.remove('valid');
+        formState.errors.set(fieldId, message);
+    },
+
+    clearError(fieldId) {
+        const field = elements[fieldId];
+        if (!field) return;
+
+        const inputWrapper = field.closest('.input-wrapper');
+        const errorElement = document.getElementById(`${fieldId}Error`);
+
+        errorElement?.remove();
+        inputWrapper?.classList.remove('error');
+        formState.errors.delete(fieldId);
+    },
+
+    markValid(fieldId) {
+        const field = elements[fieldId];
+        if (!field) return;
+
+        const inputWrapper = field.closest('.input-wrapper');
+        inputWrapper?.classList.add('valid');
+        inputWrapper?.classList.remove('error');
+        this.clearError(fieldId);
+    },
+
+    clearAllErrors() {
+        formState.errors.forEach((_, fieldId) => this.clearError(fieldId));
+        formState.errors.clear();
     }
-}
+};
 
-// Validación del formulario completo
-function validateForm(formData) {
-    let isValid = true;
-    
-    if (!formData.username.trim()) {
-        showFieldError('username', 'El usuario es obligatorio');
-        isValid = false;
+// Validación
+const Validator = {
+    required(value) {
+        return value && value.trim().length > 0;
+    },
+
+    validateField(fieldId) {
+        const field = elements[fieldId];
+        if (!field) return;
+
+        const value = field.value.trim();
+        const isRequired = field.hasAttribute('required');
+
+        if (isRequired && !this.required(value)) {
+            FieldManager.showError(fieldId, ERROR_MESSAGES.REQUIRED_FIELD);
+        } else if (value) {
+            FieldManager.markValid(fieldId);
+        } else {
+            FieldManager.clearError(fieldId);
+        }
+    },
+
+    validateForm(formData) {
+        FieldManager.clearAllErrors();
+        let isValid = true;
+
+        if (!this.required(formData.username)) {
+            FieldManager.showError('username', ERROR_MESSAGES.REQUIRED_FIELD);
+            isValid = false;
+        }
+
+        if (!this.required(formData.password)) {
+            FieldManager.showError('password', ERROR_MESSAGES.REQUIRED_FIELD);
+            isValid = false;
+        }
+
+        return isValid;
     }
-    
-    if (!formData.password) {
-        showFieldError('password', 'La contraseña es obligatoria');
-        isValid = false;
+};
+
+// Gestión de estado de carga
+const LoadingManager = {
+    setLoading(loading) {
+        formState.isLoading = loading;
+        
+        if (loading) {
+            elements.submitButton.disabled = true;
+            elements.registerButton.disabled = true;
+            elements.submitButton.classList.add('loading');
+            elements.submitButton.innerHTML = '<div class="btn-text">Iniciando sesión...</div>';
+        } else {
+            elements.submitButton.disabled = false;
+            elements.registerButton.disabled = false;
+            elements.submitButton.classList.remove('loading');
+            elements.submitButton.innerHTML = '<i class="fas fa-sign-in-alt"></i><div class="btn-text">Iniciar sesión</div>';
+        }
     }
-    
-    return isValid;
-}
+};
 
-// En la función setLoadingState, CORREGIR:
-function setLoadingState(loading) {
-    formState.isLoading = loading;
-    const submitButton = document.querySelector('.btn-primary');
-    const registerButton = document.querySelector('.btn-secondary');
-    
-    if (loading) {
-        submitButton.disabled = true;
-        registerButton.disabled = true;
-        submitButton.classList.add('loading');
-        submitButton.innerHTML = '<div class="btn-text">Iniciando sesión...</div>';
-    } else {
-        submitButton.disabled = false;
-        registerButton.disabled = false;
-        submitButton.classList.remove('loading');
-        // ✅ CORREGIDO: Agregar el icono de vuelta
-        submitButton.innerHTML = '<i class="fas fa-sign-in-alt"></i><div class="btn-text">Iniciar sesión</div>';
-    }
-}
+// Notificaciones
+const NotificationManager = {
+    show(message, type = 'error') {
+        const icon = type === 'success' ? 'fa-check-circle' : 'fa-exclamation-triangle';
+        const notification = DOM.createElement(
+            'div', 
+            `notification notification-${type}`,
+            `
+                <div class="notification-content">
+                    <i class="fas ${icon}"></i>
+                    <span>${message}</span>
+                </div>
+            `
+        );
 
-// Función para mostrar notificación
-function showNotification(message, type = 'error') {
-    // Crear elemento de notificación
-    const notification = document.createElement('div');
-    notification.className = `notification notification-${type}`;
-    notification.innerHTML = `
-        <div class="notification-content">
-            <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-triangle'}"></i>
-            <span>${message}</span>
-        </div>
-    `;
+        Object.assign(notification.style, {
+            position: 'fixed',
+            top: '20px',
+            right: '20px',
+            background: type === 'success' ? '#4caf50' : '#ff5a5a',
+            color: 'white',
+            padding: '15px 20px',
+            borderRadius: '15px',
+            boxShadow: '0 10px 30px rgba(0,0,0,0.3)',
+            zIndex: '10000',
+            maxWidth: '400px',
+            animation: 'slideInRight 0.3s ease-out',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '10px',
+            fontWeight: '600'
+        });
 
-    // Estilos para la notificación
-    Object.assign(notification.style, {
-        position: 'fixed',
-        top: '20px',
-        right: '20px',
-        background: type === 'success' ? '#4caf50' : '#ff5a5a',
-        color: 'white',
-        padding: '15px 20px',
-        borderRadius: '15px',
-        boxShadow: '0 10px 30px rgba(0,0,0,0.3)',
-        zIndex: '10000',
-        maxWidth: '400px',
-        animation: 'slideInRight 0.3s ease-out',
-        display: 'flex',
-        alignItems: 'center',
-        gap: '10px',
-        fontWeight: '600'
-    });
+        document.body.appendChild(notification);
 
-    document.body.appendChild(notification);
-
-    // Remover después de 5 segundos
-    setTimeout(() => {
-        notification.style.animation = 'slideOutRight 0.3s ease-in';
         setTimeout(() => {
-            if (notification.parentNode) {
-                notification.parentNode.removeChild(notification);
-            }
-        }, 300);
-    }, 5000);
-}
-
-// Función para manejar el login
-async function handleLogin(event) {
-    event.preventDefault();
-    
-    if (formState.isLoading) return;
-    
-    const formData = {
-        username: document.getElementById('username').value.trim(),
-        password: document.getElementById('password').value
-    };
-
-    // Limpiar errores previos
-    clearFieldError('username');
-    clearFieldError('password');
-
-    // Validar formulario
-    if (!validateForm(formData)) {
-        return;
+            notification.style.animation = 'slideOutRight 0.3s ease-in';
+            setTimeout(() => notification.remove(), 300);
+        }, 5000);
     }
+};
 
-    // Mostrar estado de carga
-    setLoadingState(true);
-
-    try {
+// API Client
+const AuthAPI = {
+    async login(credentials) {
         const response = await fetch('/api/auth/login', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({
-                username: formData.username,
-                password: formData.password
-            })
+            body: JSON.stringify(credentials)
         });
 
         const data = await response.json();
+        return { response, data };
+    },
 
-        if (!response.ok) {
-            // Manejar errores específicos del servidor
-            if (data.message?.includes('usuario') || data.message?.includes('Usuario') || data.message?.includes('username')) {
-                showFieldError('username', 'Usuario no encontrado');
-            } else if (data.message?.includes('contraseña') || data.message?.includes('password') || data.message?.includes('Credenciales')) {
-                showFieldError('password', 'Contraseña incorrecta');
-            } else {
-                showNotification(data.message || 'Error en el inicio de sesión');
-            }
+    handleLoginError(data) {
+        const message = data.message?.toLowerCase() || '';
+        
+        if (message.includes('usuario') || message.includes('username')) {
+            FieldManager.showError('username', ERROR_MESSAGES.USER_NOT_FOUND);
+        } else if (message.includes('contraseña') || message.includes('password') || message.includes('credenciales')) {
+            FieldManager.showError('password', ERROR_MESSAGES.WRONG_PASSWORD);
+        } else {
+            NotificationManager.show(data.message || ERROR_MESSAGES.LOGIN_ERROR);
+        }
+    },
+
+    handleLoginSuccess(data) {
+        localStorage.setItem('token', data.data.token);
+        localStorage.setItem('user', JSON.stringify(data.data.user));
+        
+        NotificationManager.show(ERROR_MESSAGES.LOGIN_SUCCESS, 'success');
+        
+        setTimeout(() => {
+            this.redirectByRole(data.data.user.id_rol);
+        }, 1500);
+    },
+
+    redirectByRole(roleId) {
+        window.location.href = ROUTES[roleId] || '/dashboard';
+    }
+};
+
+// Manejador del formulario de login
+const LoginHandler = {
+    async handleSubmit(event) {
+        event.preventDefault();
+        
+        if (formState.isLoading) return;
+        
+        const formData = {
+            username: elements.username.value.trim(),
+            password: elements.password.value
+        };
+
+        FieldManager.clearAllErrors();
+
+        if (!Validator.validateForm(formData)) {
             return;
         }
 
-        if (data.success) {
-            // Guardar token y datos del usuario
-            localStorage.setItem('token', data.data.token);
-            localStorage.setItem('user', JSON.stringify(data.data.user));
-            
-            showNotification('¡Inicio de sesión exitoso!', 'success');
-            
-            // Redirigir después de un breve delay
-            setTimeout(() => {
-                redirectByRole(data.data.user.id_rol);
-            }, 1500);
-            
-        } else {
-            showNotification(data.message || 'Error en el inicio de sesión');
+        LoadingManager.setLoading(true);
+
+        try {
+            const { response, data } = await AuthAPI.login(formData);
+
+            if (!response.ok) {
+                AuthAPI.handleLoginError(data);
+                return;
+            }
+
+            if (data.success) {
+                AuthAPI.handleLoginSuccess(data);
+            } else {
+                NotificationManager.show(data.message || ERROR_MESSAGES.LOGIN_ERROR);
+            }
+        } catch (error) {
+            console.error('Error en login:', error);
+            NotificationManager.show(ERROR_MESSAGES.CONNECTION_ERROR);
+        } finally {
+            LoadingManager.setLoading(false);
         }
-    } catch (error) {
-        console.error('Error en login:', error);
-        showNotification('Error de conexión. Intenta nuevamente.');
-    } finally {
-        setLoadingState(false);
+    },
+
+    goToRegister() {
+        window.location.href = '/register';
     }
-}
+};
 
-// Función para redirigir según el rol
-function redirectByRole(roleId) {
-    const routes = {
-        1: '/cliente',      // Cliente
-        2: '/cajero',       // Cajero
-        3: '/admin',        // Administrador
-        4: '/cocina',       // Cocina
-        5: '/mesero'        // Mesero
-    };
-    
-    window.location.href = routes[roleId] || '/dashboard';
-}
+// Configuración de eventos
+const EventManager = {
+    setupRealTimeValidation() {
+        const fields = ['username', 'password'];
+        
+        fields.forEach(fieldId => {
+            const field = elements[fieldId];
+            if (!field) return;
 
-// Función para ir al registro
-function goToRegister() {
-    window.location.href = '/register';
-}
+            field.addEventListener('blur', () => Validator.validateField(fieldId));
+            
+            field.addEventListener('input', () => {
+                if (field.value.trim() && formState.errors.has(fieldId)) {
+                    FieldManager.clearError(fieldId);
+                }
+            });
+        });
+    },
 
-// Inicializar la página
+    setupFormEvents() {
+        if (elements.loginForm) {
+            elements.loginForm.addEventListener('submit', LoginHandler.handleSubmit);
+        }
+        
+        if (elements.registerBtn) {
+            elements.registerBtn.addEventListener('click', LoginHandler.goToRegister);
+        }
+    }
+};
+
+// Inicialización
 function initLoginPage() {
-    // Inicializar efectos
     initRippleButtons();
     initParticles();
     
-    // Configurar validación en tiempo real
-    setupRealTimeValidation();
-    
-    // Conectar el formulario
-    const loginForm = document.getElementById('loginForm');
-    if (loginForm) {
-        loginForm.addEventListener('submit', handleLogin);
-    }
-    
-    // Conectar botón de registro
-    const registerBtn = document.getElementById('registerBtn');
-    if (registerBtn) {
-        registerBtn.addEventListener('click', goToRegister);
-    }
+    EventManager.setupRealTimeValidation();
+    EventManager.setupFormEvents();
 }
 
 // Inicializar cuando el DOM esté listo
-document.addEventListener('DOMContentLoaded', initLoginPage);
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initLoginPage);
+} else {
+    initLoginPage();
+}
+
+// Exportar para testing
+export {
+    FieldManager,
+    Validator,
+    AuthAPI,
+    LoginHandler,
+    formState
+};

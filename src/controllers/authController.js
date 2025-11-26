@@ -1,40 +1,73 @@
-// src/controllers/authController.js - ACTUALIZADO PARA SP
 const User = require('../models/User');
 const { MESSAGES, ROLES } = require('../../config/constants');
 const jwt = require('jsonwebtoken');
 
+const ERROR_TYPES = {
+  USER_NOT_FOUND: 'USER_NOT_FOUND',
+  USER_INACTIVE: 'USER_INACTIVE',
+  INVALID_PASSWORD: 'INVALID_PASSWORD',
+  INVALID_USER_DATA: 'INVALID_USER_DATA',
+  LOGIN_ERROR: 'LOGIN_ERROR'
+};
+
+const ERROR_RESPONSES = {
+  [ERROR_TYPES.USER_NOT_FOUND]: {
+    message: 'Usuario no encontrado',
+    status: 404
+  },
+  [ERROR_TYPES.USER_INACTIVE]: {
+    message: 'Usuario inactivo',
+    status: 403
+  },
+  [ERROR_TYPES.INVALID_PASSWORD]: {
+    message: 'Contraseña incorrecta',
+    status: 401
+  },
+  [ERROR_TYPES.INVALID_USER_DATA]: {
+    message: 'Datos de usuario inválidos',
+    status: 500
+  },
+  [ERROR_TYPES.LOGIN_ERROR]: {
+    message: 'Error en el inicio de sesión',
+    status: 500
+  }
+};
+
 class AuthController {
-  // Registro de usuario - ACTUALIZADO para usar tu SP
+  static validateRegistration(data) {
+    const { nombre, apellido, username, password } = data;
+    const errors = [];
+
+    if (!nombre?.trim()) errors.push('El nombre es requerido');
+    if (!apellido?.trim()) errors.push('El apellido es requerido');
+    if (!username?.trim()) errors.push('El usuario es requerido');
+    if (!password) errors.push('La contraseña es requerida');
+    
+    if (password && password.length < 6) {
+      errors.push('La contraseña debe tener al menos 6 caracteres');
+    }
+
+    return errors;
+  }
+
   static async register(req, res) {
     try {
       const { username, password, nombre, apellido, email, id_rol } = req.body;
 
-      console.log('📝 Datos recibidos para registro:', {
-        username, nombre, apellido, email, id_rol
-      });
-
-      // Validaciones básicas
-      if (!nombre || !apellido || !username || !password) {
+      const validationErrors = this.validateRegistration(req.body);
+      if (validationErrors.length > 0) {
         return res.status(400).json({
           success: false,
-          message: 'Nombre, apellido, usuario y contraseña son requeridos'
+          message: validationErrors.join(', ')
         });
       }
 
-      if (password.length < 6) {
-        return res.status(400).json({
-          success: false,
-          message: 'La contraseña debe tener al menos 6 caracteres'
-        });
-      }
-
-      // Crear usuario usando tu SP
       const user = await User.create({
-        username,
+        username: username.trim(),
         password,
-        nombre,
-        apellido,
-        email: email || null,
+        nombre: nombre.trim(),
+        apellido: apellido.trim(),
+        email: email?.trim() || null,
         id_rol: id_rol || ROLES.CLIENTE
       });
 
@@ -53,51 +86,30 @@ class AuthController {
       });
 
     } catch (error) {
-      console.error('❌ Error en registro:', error);
-      
-      // Manejar errores específicos del SP
-      if (error.message.includes('ya existe') || 
-          error.message.includes('ya está registrado')) {
-        return res.status(400).json({
-          success: false,
-          message: error.message
-        });
-      }
-      
-      if (error.message.includes('obligatorio') || 
-          error.message.includes('no existe')) {
-        return res.status(400).json({
-          success: false,
-          message: error.message
-        });
-      }
-
-      res.status(500).json({
+      const status = error.message.includes('ya existe') ? 400 : 500;
+      res.status(status).json({
         success: false,
-        message: error.message || MESSAGES.ERROR.DB_CONNECTION
+        message: error.message
       });
     }
   }
 
-  // Login de usuario (mantener igual)
   static async login(req, res) {
     try {
       const { username, password } = req.body;
 
-      if (!username || !password) {
+      if (!username?.trim() || !password) {
         return res.status(400).json({
           success: false,
           message: 'Usuario y contraseña son requeridos'
         });
       }
 
-      // Autenticar usuario
-      const user = await User.login(username, password);
+      const user = await User.login(username.trim(), password);
 
-      // Generar token JWT
       const token = jwt.sign(
         { 
-          userId: user.id, 
+          userId: user.id_usuario, 
           username: user.username,
           role: user.id_rol 
         },
@@ -111,27 +123,30 @@ class AuthController {
         data: {
           token,
           user: {
-            id: user.id,
+            id: user.id_usuario,
             username: user.username,
             nombre: user.nombre,
             apellido: user.apellido,
             email: user.email,
             id_rol: user.id_rol,
-            rol_nombre: user.rol_nombre
+            rol_nombre: user.nombre_rol
           }
         }
       });
 
     } catch (error) {
-      console.error('Error en login:', error);
-      res.status(401).json({
+      const errorResponse = ERROR_RESPONSES[error.message] || {
+        message: MESSAGES.ERROR.INVALID_CREDENTIALS,
+        status: 401
+      };
+
+      res.status(errorResponse.status).json({
         success: false,
-        message: error.message || MESSAGES.ERROR.INVALID_CREDENTIALS
+        message: errorResponse.message
       });
     }
   }
 
-  // Obtener roles disponibles
   static async getRoles(req, res) {
     try {
       const roles = await User.getRoles();
@@ -140,7 +155,6 @@ class AuthController {
         data: roles
       });
     } catch (error) {
-      console.error('Error obteniendo roles:', error);
       res.status(500).json({
         success: false,
         message: MESSAGES.ERROR.DB_CONNECTION
@@ -148,7 +162,6 @@ class AuthController {
     }
   }
 
-  // Verificar token
   static async verifyToken(req, res) {
     try {
       const token = req.headers.authorization?.replace('Bearer ', '');
@@ -161,9 +174,8 @@ class AuthController {
       }
 
       const decoded = jwt.verify(token, process.env.JWT_SECRET || 'pizzeria_secret_key');
-      
-      // Obtener información actualizada del usuario
       const user = await User.findById(decoded.userId);
+      
       if (!user) {
         return res.status(401).json({
           success: false,
@@ -175,7 +187,7 @@ class AuthController {
         success: true,
         data: {
           user: {
-            id: user.id,
+            id: user.id_usuario,
             nombre: user.nombre,
             apellido: user.apellido,
             username: user.username,
@@ -185,10 +197,13 @@ class AuthController {
       });
 
     } catch (error) {
-      console.error('Error verificando token:', error);
+      const message = error.name === 'TokenExpiredError' 
+        ? 'Token expirado' 
+        : 'Token inválido';
+
       res.status(401).json({
         success: false,
-        message: 'Token inválido o expirado'
+        message
       });
     }
   }
