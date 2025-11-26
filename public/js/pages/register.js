@@ -106,7 +106,7 @@ function updateRoleDescription() {
     }
 }
 
-// Configurar toggles de contraseña - CORREGIDO
+// Configurar toggles de contraseña - MEJORADO
 function setupPasswordToggles() {
     document.querySelectorAll('.toggle-password').forEach(button => {
         button.addEventListener('click', function() {
