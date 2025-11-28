@@ -1,13 +1,21 @@
 const express = require('express');
+const router = express.Router();
 const UserController = require('../controllers/userController');
+const mesaController = require('../controllers/mesaController');
 const { authenticateToken, requireRole } = require('../middleware/auth');
 const { ROLES } = require('../../config/constants');
 
-const router = express.Router();
 
 // Rutas protegidas de usuarios
 router.get('/users/profile', authenticateToken, UserController.getProfile);
 router.put('/users/profile', authenticateToken, UserController.updateProfile);
+
+// Rutas para mesas
+router.get('/mesas', authenticateToken, mesaController.obtenerTodas);
+router.get('/mesas/estadisticas', authenticateToken, mesaController.obtenerEstadisticas);
+router.get('/mesas/ubicacion/:ubicacion', authenticateToken, mesaController.obtenerPorUbicacion);
+router.get('/mesas/:id', authenticateToken, mesaController.obtenerPorId);
+router.put('/mesas/:id/estado', authenticateToken, mesaController.cambiarEstado);
 
 // Ruta solo para administradores
 router.get('/users/all', 

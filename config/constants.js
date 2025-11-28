@@ -4,7 +4,12 @@ const SP_NAMES = {
   USUARIO_OBTENER: 'sp_usuario_obtener',
   USUARIO_ACTUALIZAR: 'sp_usuario_actualizar',
   USUARIOS_LISTAR: 'sp_usuarios_listar',
-  ROLES_LISTAR: 'sp_roles_listar'
+  ROLES_LISTAR: 'sp_roles_listar',
+  MESAS_LISTAR: 'sp_mesas_listar',
+  MESAS_ESTADISTICAS: 'sp_mesas_estadisticas',
+  MESA_CAMBIAR_ESTADO: 'sp_mesa_cambiar_estado',
+  MESAS_POR_PISO: 'sp_mesas_por_piso',
+  ESTADOS_MESA_LISTAR: 'sp_estados_mesa_listar'
 };
 
 const ROLES = {

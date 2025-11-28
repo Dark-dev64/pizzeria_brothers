@@ -192,7 +192,7 @@ label {
   font-weight: 600;
   text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.3);
   animation: slideDown 0.3s ease-out;
-  display: flex;
+  display: none; /* oculto por defecto, se muestra solo cuando hay error */
   align-items: center;
   gap: 8px;
 }
@@ -200,6 +200,13 @@ label {
 .error-message::before {
   content: '⚠';
   font-size: 16px;
+}
+
+/* Mostrar mensaje de error sólo cuando el input correspondiente tenga la clase .error
+   El JS añade 'error' a .input-with-icon, por eso usamos el selector de hermano general */
+.input-with-icon.error ~ .error-message,
+.form-group.error .error-message {
+  display: flex;
 }
 
 /* PASSWORD WRAPPER MEJORADO */

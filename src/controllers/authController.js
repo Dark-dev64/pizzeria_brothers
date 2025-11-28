@@ -50,49 +50,79 @@ class AuthController {
     return errors;
   }
 
-  static async register(req, res) {
+static async register(req, res) {
     try {
-      const { username, password, nombre, apellido, email, id_rol } = req.body;
+        const { username, password, nombre, apellido, email, id_rol } = req.body;
 
-      const validationErrors = this.validateRegistration(req.body);
-      if (validationErrors.length > 0) {
-        return res.status(400).json({
-          success: false,
-          message: validationErrors.join(', ')
+        console.log('📝 Datos recibidos para registro:', {
+            username, nombre, apellido, email, id_rol
         });
-      }
 
-      const user = await User.create({
-        username: username.trim(),
-        password,
-        nombre: nombre.trim(),
-        apellido: apellido.trim(),
-        email: email?.trim() || null,
-        id_rol: id_rol || ROLES.CLIENTE
-      });
-
-      res.status(201).json({
-        success: true,
-        message: MESSAGES.SUCCESS.REGISTER,
-        data: {
-          id: user.id_usuario,
-          username: user.username,
-          nombre: user.nombre,
-          apellido: user.apellido,
-          email: user.email,
-          id_rol: user.id_rol,
-          rol_nombre: user.nombre_rol
+        // Validaciones básicas
+        if (!nombre || !apellido || !username || !password) {
+            return res.status(400).json({
+                success: false,
+                message: 'Nombre, apellido, usuario y contraseña son requeridos'
+            });
         }
-      });
+
+        if (password.length < 6) {
+            return res.status(400).json({
+                success: false,
+                message: 'La contraseña debe tener al menos 6 caracteres'
+            });
+        }
+
+        // Crear usuario usando tu SP
+        const user = await User.create({
+            username,
+            password,
+            nombre,
+            apellido,
+            email: email || null,
+            id_rol: id_rol || 1 // Valor por defecto Cliente
+        });
+
+        res.status(201).json({
+            success: true,
+            message: MESSAGES.SUCCESS.REGISTER,
+            data: {
+                id: user.id_usuario,
+                username: user.username,
+                nombre: user.nombre,
+                apellido: user.apellido,
+                email: user.email,
+                id_rol: user.id_rol,
+                rol_nombre: user.nombre_rol
+            }
+        });
 
     } catch (error) {
-      const status = error.message.includes('ya existe') ? 400 : 500;
-      res.status(status).json({
-        success: false,
-        message: error.message
-      });
+        console.error('❌ Error en registro:', error);
+        
+        // Manejar errores específicos del SP
+        if (error.message.includes('ya existe') || 
+            error.message.includes('ya está registrado')) {
+            return res.status(400).json({
+                success: false,
+                message: error.message
+            });
+        }
+        
+        if (error.message.includes('obligatorio') || 
+            error.message.includes('no existe')) {
+            return res.status(400).json({
+                success: false,
+                message: error.message
+            });
+        }
+
+        res.status(500).json({
+            success: false,
+            message: error.message || MESSAGES.ERROR.DB_CONNECTION
+        });
     }
-  }
+}
 
   static async login(req, res) {
     try {

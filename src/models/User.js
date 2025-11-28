@@ -5,43 +5,58 @@ const bcrypt = require('bcryptjs');
 class User {
   static async create(userData) {
     try {
-      const {
-        username,
-        password,
-        nombre,
-        apellido,
-        email = null,
-        id_rol = 1
-      } = userData;
+        const {
+            username,
+            password,
+            nombre,
+            apellido,
+            email = null,
+            id_rol = 1
+        } = userData;
 
-      const password_hash = await bcrypt.hash(password, 12);
-      const result = await executeSP(SP_NAMES.USUARIO_CREAR, [
-        username,
-        password_hash,
-        nombre,
-        apellido,
-        email,
-        id_rol
-      ]);
+        console.log('🔐 Creando usuario con datos:', { 
+            username, 
+            nombre, 
+            apellido, 
+            email, 
+            id_rol 
+        });
 
-      return result[0];
+        const password_hash = await bcrypt.hash(password, 12);
+        console.log('🔑 Password hash generado');
+
+        // Llamar a tu SP de creación
+        const result = await executeSP(SP_NAMES.USUARIO_CREAR, [
+            username,
+            password_hash,
+            nombre,
+            apellido,
+            email,
+            id_rol
+        ]);
+
+        console.log('✅ Usuario creado exitosamente:', result[0]);
+        return result[0];
 
     } catch (error) {
-      if (error.code === 'ER_DUP_ENTRY' || error.message.includes('Duplicate')) {
-        throw new Error('El usuario ya está registrado');
-      }
-      
-      if (error.message.includes('ya existe') || error.message.includes('ya está registrado')) {
-        throw new Error(error.message);
-      }
-      
-      if (error.message.includes('obligatorio')) {
-        throw new Error(error.message);
-      }
-      
-      throw new Error('Error al crear usuario');
+        console.error('❌ Error en User.create:', error);
+        
+        // Manejar errores específicos del SP
+        if (error.code === 'ER_DUP_ENTRY' || error.message.includes('Duplicate')) {
+            throw new Error('El usuario ya está registrado');
+        }
+        
+        if (error.message.includes('ya existe') || error.message.includes('ya está registrado')) {
+            throw new Error(error.message);
+        }
+        
+        if (error.message.includes('obligatorio')) {
+            throw new Error(error.message);
+        }
+        
+        throw new Error('Error al crear usuario: ' + error.message);
     }
-  }
+}
 
   static async login(username, password) {
     try {

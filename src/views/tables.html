@@ -5,639 +5,74 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Pizza Brothers - Dashboard Mesas</title>
   
-  <!-- CSS del Dashboard -->
-  <link rel="stylesheet" href="/css/pages/dashboard.css">
-  <style>
-    /* Estilos específicos del dashboard de mesas */
-    @import url('https://fonts.googleapis.com/css2?family=Bangers&display=swap');
-
-    .dashboard-main {
-      padding: 30px;
-      max-width: 1400px;
-      margin: 0 auto;
-    }
-
-    /* Header mejorado */
-    .dashboard-header {
-      background: rgba(255, 255, 255, 0.15);
-      backdrop-filter: blur(20px);
-      padding: 20px 40px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      position: sticky;
-      top: 0;
-      z-index: 1000;
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-    }
-
-    .dashboard-header .logo {
-      font-family: 'Bangers', cursive;
-      font-size: 36px;
-      color: #ff6b35;
-      text-shadow: 3px 3px 0px #c41e3a;
-      letter-spacing: 2px;
-    }
-
-    .header-actions {
-      display: flex;
-      align-items: center;
-      gap: 20px;
-    }
-
-    .user-welcome {
-      font-family: 'Arial Rounded MT Bold', sans-serif;
-      font-size: 16px;
-      color: #fff;
-    }
-
-    .user-welcome .user-name {
-      color: #ffeb3b;
-      font-weight: bold;
-    }
-
-    .logout-btn {
-      background: linear-gradient(135deg, #ff5a5a, #ff3838);
-      color: white;
-      border: none;
-      padding: 12px 24px;
-      border-radius: 25px;
-      cursor: pointer;
-      font-weight: bold;
-      font-family: 'Arial Rounded MT Bold', sans-serif;
-      transition: all 0.3s ease;
-      box-shadow: 0 4px 15px rgba(255, 90, 90, 0.3);
-    }
-
-    .logout-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 20px rgba(255, 90, 90, 0.4);
-    }
-
-    /* Stats Cards */
-    .stats-container {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 20px;
-      margin-bottom: 40px;
-    }
-
-    .stat-card {
-      background: rgba(255, 255, 255, 0.1);
-      backdrop-filter: blur(15px);
-      border-radius: 20px;
-      padding: 25px;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
-      transition: all 0.3s ease;
-      text-align: center;
-    }
-
-    .stat-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.2);
-    }
-
-    .stat-number {
-      font-size: 42px;
-      font-weight: bold;
-      font-family: 'Bangers', cursive;
-      margin-bottom: 8px;
-    }
-
-    .stat-available { color: #4caf50; }
-    .stat-occupied { color: #ff5a5a; }
-    .stat-reserved { color: #64b5f6; }
-    .stat-total { color: #ffeb3b; }
-
-    .stat-label {
-      font-family: 'Arial Rounded MT Bold', sans-serif;
-      font-size: 14px;
-      color: rgba(255, 255, 255, 0.8);
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-
-    /* Contenedor principal de mesas */
-    .tables-section {
-      background: rgba(255, 255, 255, 0.1);
-      backdrop-filter: blur(15px);
-      border-radius: 30px;
-      padding: 40px;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.2);
-      margin-bottom: 30px;
-    }
-
-    .section-header {
-      text-align: center;
-      margin-bottom: 40px;
-    }
-
-    .section-title {
-      font-family: 'Bangers', cursive;
-      font-size: 48px;
-      color: #fff;
-      text-shadow: 4px 4px 0px #ff6b35, 6px 6px 0px #c41e3a;
-      letter-spacing: 3px;
-      transform: rotate(-2deg);
-      margin-bottom: 15px;
-    }
-
-    .section-subtitle {
-      font-family: 'Arial Rounded MT Bold', sans-serif;
-      color: rgba(255, 255, 255, 0.8);
-      font-size: 18px;
-    }
-
-    /* Leyenda mejorada */
-    .legend {
-      display: flex;
-      justify-content: center;
-      gap: 25px;
-      margin-bottom: 40px;
-      flex-wrap: wrap;
-    }
-
-    .legend-item {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      font-family: 'Arial Rounded MT Bold', sans-serif;
-      font-size: 14px;
-      background: rgba(255, 255, 255, 0.15);
-      padding: 10px 20px;
-      border-radius: 25px;
-      backdrop-filter: blur(10px);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      transition: all 0.3s ease;
-    }
-
-    .legend-item:hover {
-      transform: translateY(-2px);
-      background: rgba(255, 255, 255, 0.2);
-    }
-
-    .legend-color {
-      width: 20px;
-      height: 20px;
-      border-radius: 6px;
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    }
-
-    .available-color { background: #4caf50; }
-    .occupied-color { background: #ff5a5a; }
-    .reserved-color { background: #64b5f6; }
-    .selected-color { background: #ffeb3b; }
-
-    /* Grid de mesas mejorado */
-    .tables-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-      gap: 25px;
-      max-width: 1000px;
-      margin: 0 auto;
-    }
-
-    .table {
-      width: 140px;
-      height: 140px;
-      background: white;
-      border-radius: 25px;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-      cursor: pointer;
-      transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-      font-size: 42px;
-      color: #333;
-      position: relative;
-      border: 4px solid transparent;
-      overflow: hidden;
-    }
-
-    .table::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: -100%;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
-      transition: left 0.5s;
-    }
-
-    .table:hover::before {
-      left: 100%;
-    }
-
-    .table:hover:not(.occupied):not(.reserved) {
-      transform: translateY(-12px) scale(1.08);
-      box-shadow: 0 25px 45px rgba(0, 0, 0, 0.3);
-    }
-
-    .table.available { 
-      background: linear-gradient(135deg, #f8f9fa, #e9ecef);
-      animation: pulseGlow 3s infinite;
-    }
-
-    .table.occupied { 
-      background: linear-gradient(135deg, #ff5a5a, #ff3838);
-      color: white; 
-      cursor: not-allowed; 
-    }
-
-    .table.reserved { 
-      background: linear-gradient(135deg, #64b5f6, #42a5f5);
-      color: white; 
-      cursor: not-allowed; 
-    }
-
-    .table.selected {
-      border-color: #ffeb3b;
-      box-shadow: 0 0 0 4px #ffeb3b, 0 20px 40px rgba(255, 235, 59, 0.3);
-      transform: scale(1.1);
-      animation: selectedPulse 2s infinite;
-    }
-
-    @keyframes pulseGlow {
-      0%, 100% { 
-        box-shadow: 0 10px 25px rgba(76, 175, 80, 0.3);
-      }
-      50% { 
-        box-shadow: 0 10px 25px rgba(76, 175, 80, 0.6);
-      }
-    }
-
-    @keyframes selectedPulse {
-      0%, 100% { 
-        box-shadow: 0 0 0 4px #ffeb3b, 0 20px 40px rgba(255, 235, 59, 0.3);
-      }
-      50% { 
-        box-shadow: 0 0 0 6px #ffeb3b, 0 25px 50px rgba(255, 235, 59, 0.5);
-      }
-    }
-
-    .table .status {
-      font-size: 12px;
-      margin-top: 6px;
-      font-family: 'Arial Rounded MT Bold', sans-serif;
-      font-weight: bold;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-
-    .table .capacity {
-      position: absolute;
-      top: 10px;
-      right: 10px;
-      background: rgba(0, 0, 0, 0.15);
-      border-radius: 50%;
-      width: 28px;
-      height: 28px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 12px;
-      font-family: 'Arial Rounded MT Bold', sans-serif;
-      font-weight: bold;
-      color: #333;
-    }
-
-    .table.occupied .capacity,
-    .table.reserved .capacity {
-      color: white;
-      background: rgba(0, 0, 0, 0.3);
-    }
-
-    /* Botones de acción */
-    .action-buttons {
-      display: flex;
-      justify-content: center;
-      gap: 20px;
-      margin-top: 50px;
-      flex-wrap: wrap;
-    }
-
-    .action-btn {
-      padding: 18px 36px;
-      border: none;
-      border-radius: 50px;
-      font-size: 18px;
-      font-weight: bold;
-      font-family: 'Arial Rounded MT Bold', sans-serif;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
-      position: relative;
-      overflow: hidden;
-      min-width: 200px;
-    }
-
-    .action-btn::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: -100%;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
-      transition: left 0.5s;
-    }
-
-    .action-btn:hover::before {
-      left: 100%;
-    }
-
-    .action-btn:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 15px 35px rgba(0, 0, 0, 0.3);
-    }
-
-    .btn-close {
-      background: linear-gradient(135deg, #ff5a5a, #ff3838);
-      color: white;
-    }
-
-    .btn-confirm {
-      background: linear-gradient(135deg, #4caf50, #45a049);
-      color: white;
-    }
-
-    .btn-refresh {
-      background: linear-gradient(135deg, #2196f3, #1976d2);
-      color: white;
-    }
-
-    /* Snackbar mejorado */
-    .snackbar {
-      position: fixed;
-      bottom: -100px;
-      left: 50%;
-      transform: translateX(-50%);
-      background: rgba(255, 255, 255, 0.95);
-      backdrop-filter: blur(20px);
-      border-radius: 20px;
-      padding: 25px 35px;
-      box-shadow: 0 20px 45px rgba(0, 0, 0, 0.3);
-      display: flex;
-      align-items: center;
-      gap: 25px;
-      transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-      z-index: 1000;
-      border: 2px solid rgba(255, 255, 255, 0.5);
-      max-width: 500px;
-      width: 90%;
-    }
-
-    .snackbar.show {
-      bottom: 40px;
-      animation: snackbarBounce 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    }
-
-    @keyframes snackbarBounce {
-      0% { bottom: -100px; }
-      60% { bottom: 60px; }
-      100% { bottom: 40px; }
-    }
-
-    .snackbar-message {
-      font-family: 'Arial Rounded MT Bold', sans-serif;
-      color: #333;
-      font-size: 16px;
-      font-weight: bold;
-      flex: 1;
-    }
-
-    .snackbar-actions {
-      display: flex;
-      gap: 12px;
-    }
-
-    .snackbar-btn {
-      padding: 10px 20px;
-      border: none;
-      border-radius: 20px;
-      font-family: 'Arial Rounded MT Bold', sans-serif;
-      font-size: 14px;
-      font-weight: bold;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
-    }
-
-    .snackbar-btn:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 15px rgba(0, 0, 0, 0.3);
-    }
-
-    .snackbar-btn.reserve {
-      background: #64b5f6;
-      color: white;
-    }
-
-    .snackbar-btn.occupy {
-      background: #4caf50;
-      color: white;
-    }
-
-    .snackbar-btn.cancel {
-      background: #ff5a5a;
-      color: white;
-    }
-
-    /* Responsive Design Mejorado */
-    @media (max-width: 1200px) {
-      .tables-grid {
-        grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
-        gap: 20px;
-      }
-    }
-
-    @media (max-width: 768px) {
-      .dashboard-header {
-        padding: 15px 20px;
-        flex-direction: column;
-        gap: 15px;
-        text-align: center;
-      }
-
-      .header-actions {
-        flex-direction: column;
-        gap: 10px;
-      }
-
-      .dashboard-main {
-        padding: 20px 15px;
-      }
-
-      .tables-section {
-        padding: 25px 20px;
-      }
-
-      .section-title {
-        font-size: 36px;
-      }
-
-      .tables-grid {
-        grid-template-columns: repeat(3, 1fr);
-        gap: 15px;
-      }
-
-      .table {
-        width: 110px;
-        height: 110px;
-        font-size: 32px;
-      }
-
-      .legend {
-        gap: 15px;
-      }
-
-      .legend-item {
-        font-size: 12px;
-        padding: 8px 15px;
-      }
-
-      .action-buttons {
-        flex-direction: column;
-        align-items: center;
-      }
-
-      .action-btn {
-        width: 100%;
-        max-width: 300px;
-      }
-
-      .stats-container {
-        grid-template-columns: repeat(2, 1fr);
-      }
-    }
-
-    @media (max-width: 480px) {
-      .tables-grid {
-        grid-template-columns: repeat(2, 1fr);
-      }
-
-      .table {
-        width: 100px;
-        height: 100px;
-        font-size: 28px;
-      }
-
-      .section-title {
-        font-size: 32px;
-      }
-
-      .stats-container {
-        grid-template-columns: 1fr;
-      }
-
-      .snackbar {
-        flex-direction: column;
-        text-align: center;
-        padding: 20px;
-      }
-
-      .snackbar-actions {
-        justify-content: center;
-        width: 100%;
-      }
-    }
-
-    /* Animaciones de entrada */
-    @keyframes fadeInUp {
-      from {
-        opacity: 0;
-        transform: translateY(30px);
-      }
-      to {
-        opacity: 1;
-        transform: translateY(0);
-      }
-    }
-
-    .fade-in-up {
-      animation: fadeInUp 0.8s ease-out;
-    }
-
-    .stat-card, .table {
-      animation: fadeInUp 0.6s ease-out;
-    }
-
-    /* Efectos de carga */
-    .loading {
-      opacity: 0.7;
-      pointer-events: none;
-    }
-
-    .loading::after {
-      content: '';
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      width: 30px;
-      height: 30px;
-      margin: -15px 0 0 -15px;
-      border: 3px solid rgba(255, 255, 255, 0.3);
-      border-top: 3px solid #fff;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-    }
-
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-  </style>
+  <!-- Font Awesome -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  
+  <!-- Google Fonts -->
+  <link href="https://fonts.googleapis.com/css2?family=Bangers&display=swap" rel="stylesheet">
+  
+  <!-- Estilos CSS -->
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="stylesheet" href="/css/components/buttons.css">
+  <link rel="stylesheet" href="/css/components/forms.css">
+  <link rel="stylesheet" href="/css/components/cards.css">
+  <link rel="stylesheet" href="/css/components/notifications.css">
+  <link rel="stylesheet" href="/css/pages/tables.css">
 </head>
-<body>
+<body class="tables-page">
+  <!-- Partículas de fondo -->
+  <div class="particles" id="particles"></div>
+
   <!-- Header del Dashboard -->
   <header class="dashboard-header">
-    <div class="logo">PIZZA BROTHERS</div>
+    <div class="section-title">PIZZA BROTHERS</div>
     <div class="header-actions">
       <div class="user-welcome">
         Bienvenido, <span class="user-name" id="userName">Mesero</span>
       </div>
-      <button class="logout-btn" onclick="logout()">
-        🚪 Cerrar Sesión
-      </button>
     </div>
   </header>
 
-  <!-- Partículas de fondo -->
-  <div class="dashboard-particles" id="dashboardParticles"></div>
-
   <!-- Contenido principal -->
   <main class="dashboard-main">
-    <!-- Estadísticas -->
-    <div class="stats-container">
+    <!-- Navegación de pisos -->
+    <div class="floor-navigation">
+      <button class="floor-btn active" data-floor="1">
+        <i class="fas fa-building"></i> Primer Piso
+      </button>
+      <button class="floor-btn" data-floor="2">
+        <i class="fas fa-building"></i> Segundo Piso
+      </button>
+      <button class="floor-btn" data-floor="3">
+        <i class="fas fa-umbrella"></i> Terraza
+      </button>
+    </div>
+
+    <!-- Estadísticas generales -->
+    <div class="stats-overview">
       <div class="stat-card fade-in-up">
-        <div class="stat-number stat-total" id="totalTables">12</div>
+        <div class="stat-number stat-total" id="totalTables">0</div>
         <div class="stat-label">Total Mesas</div>
       </div>
       <div class="stat-card fade-in-up">
-        <div class="stat-number stat-available" id="availableTables">8</div>
+        <div class="stat-number stat-available" id="availableTables">0</div>
         <div class="stat-label">Disponibles</div>
       </div>
       <div class="stat-card fade-in-up">
-        <div class="stat-number stat-occupied" id="occupiedTables">2</div>
+        <div class="stat-number stat-occupied" id="occupiedTables">0</div>
         <div class="stat-label">Ocupadas</div>
       </div>
       <div class="stat-card fade-in-up">
-        <div class="stat-number stat-reserved" id="reservedTables">2</div>
+        <div class="stat-number stat-reserved" id="reservedTables">0</div>
         <div class="stat-label">Reservadas</div>
       </div>
     </div>
 
-    <!-- Sección de mesas -->
-    <section class="tables-section fade-in-up">
+    <!-- Secciones por piso -->
+    <section class="floor-section active" id="floor1">
       <div class="section-header">
-        <h1 class="section-title">GESTIÓN DE MESAS</h1>
-        <p class="section-subtitle">Selecciona una mesa para gestionar su estado</p>
+        <h1 class="section-title">PRIMER PISO</h1>
+        <p class="section-subtitle">Mesas 1-12</p>
       </div>
 
       <!-- Leyenda de estados -->
@@ -654,244 +89,85 @@
           <div class="legend-color reserved-color"></div>
           <span>RESERVADO</span>
         </div>
+      </div>
+
+      <!-- Contenedor de cartas de mesas -->
+      <div class="tables-container" id="tablesFloor1">
+        <!-- Las mesas se generarán dinámicamente -->
+      </div>
+    </section>
+
+    <section class="floor-section" id="floor2">
+      <div class="section-header">
+        <h1 class="section-title">SEGUNDO PISO</h1>
+        <p class="section-subtitle">Mesas 13-24</p>
+      </div>
+
+      <div class="legend">
         <div class="legend-item">
-          <div class="legend-color selected-color"></div>
-          <span>SELECCIONADO</span>
+          <div class="legend-color available-color"></div>
+          <span>DISPONIBLE</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-color occupied-color"></div>
+          <span>OCUPADO</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-color reserved-color"></div>
+          <span>RESERVADO</span>
         </div>
       </div>
 
-      <!-- Grid de mesas -->
-      <div class="tables-grid" id="tablesGrid">
-        <!-- Las mesas se generarán dinámicamente con JavaScript -->
+      <div class="tables-container" id="tablesFloor2">
+        <!-- Las mesas se generarán dinámicamente -->
+      </div>
+    </section>
+
+    <section class="floor-section" id="floor3">
+      <div class="section-header">
+        <h1 class="section-title">TERRAZA</h1>
+        <p class="section-subtitle">Mesas 25-36</p>
       </div>
 
-      <!-- Botones de acción -->
-      <div class="action-buttons">
-        <button class="action-btn btn-refresh" onclick="refreshTables()">
-          🔄 Actualizar
-        </button>
-        <button class="action-btn btn-close" onclick="logout()">
-          🚪 Cerrar Sesión
-        </button>
-        <button class="action-btn btn-confirm" onclick="confirmSelection()">
-          ✅ Confirmar Acción
-        </button>
+      <div class="legend">
+        <div class="legend-item">
+          <div class="legend-color available-color"></div>
+          <span>DISPONIBLE</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-color occupied-color"></div>
+          <span>OCUPADO</span>
+        </div>
+        <div class="legend-item">
+          <div class="legend-color reserved-color"></div>
+          <span>RESERVADO</span>
+        </div>
+      </div>
+
+      <div class="tables-container" id="tablesFloor3">
+        <!-- Las mesas se generarán dinámicamente -->
       </div>
     </section>
   </main>
 
-  <!-- Snackbar para acciones -->
-  <div class="snackbar" id="snackbar">
-    <div class="snackbar-message" id="snackbarMessage">Selecciona una acción para la mesa</div>
-    <div class="snackbar-actions">
-      <button class="snackbar-btn reserve" id="reserveBtn">RESERVAR</button>
-      <button class="snackbar-btn occupy" id="occupyBtn">OCUPAR</button>
-      <button class="snackbar-btn cancel" id="cancelBtn">CANCELAR</button>
-    </div>
+  <!-- Botones de acción fijos -->
+  <div class="action-buttons">
+    <button class="action-btn-main btn-logout" onclick="logout()">
+      <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+    </button>
+    <button class="action-btn-main btn-confirm" onclick="showNotification('Sistema actualizado correctamente')">
+      <i class="fas fa-check-circle"></i> Confirmar
+    </button>
   </div>
 
-  <script>
-    // ========== CONFIGURACIÓN INICIAL ==========
-    let selectedTable = null;
-    let tablesData = [];
-    const snackbar = document.getElementById('snackbar');
-    const snackbarMessage = document.getElementById('snackbarMessage');
-    const reserveBtn = document.getElementById('reserveBtn');
-    const occupyBtn = document.getElementById('occupyBtn');
-    const cancelBtn = document.getElementById('cancelBtn');
+  <!-- Notificación -->
+  <div class="notification" id="notification">
+    <div class="notification-message" id="notificationMessage"></div>
+  </div>
 
-    // ========== INICIALIZACIÓN ==========
-    document.addEventListener('DOMContentLoaded', function() {
-      initializeDashboard();
-      initDashboardParticles();
-      loadTablesData();
-    });
-
-    function initializeDashboard() {
-      // Mostrar información del usuario
-      const user = JSON.parse(localStorage.getItem('user'));
-      if (user && document.getElementById('userName')) {
-        document.getElementById('userName').textContent = user.nombre;
-      }
-
-      // Configurar event listeners
-      reserveBtn.addEventListener('click', handleReserve);
-      occupyBtn.addEventListener('click', handleOccupy);
-      cancelBtn.addEventListener('click', hideSnackbar);
-    }
-
-    // ========== GESTIÓN DE MESAS ==========
-    function loadTablesData() {
-      // Datos de ejemplo - en producción vendrían de una API
-      tablesData = [
-        { id: 1, number: '01', capacity: 4, status: 'available' },
-        { id: 2, number: '02', capacity: 6, status: 'occupied' },
-        { id: 3, number: '03', capacity: 2, status: 'available' },
-        { id: 4, number: '04', capacity: 4, status: 'reserved' },
-        { id: 5, number: '05', capacity: 8, status: 'available' },
-        { id: 6, number: '06', capacity: 4, status: 'available' },
-        { id: 7, number: '07', capacity: 6, status: 'reserved' },
-        { id: 8, number: '08', capacity: 2, status: 'available' },
-        { id: 9, number: '09', capacity: 4, status: 'available' },
-        { id: 10, number: '10', capacity: 6, status: 'available' },
-        { id: 11, number: '11', capacity: 4, status: 'occupied' },
-        { id: 12, number: '12', capacity: 2, status: 'available' }
-      ];
-
-      renderTables();
-      updateStats();
-    }
-
-    function renderTables() {
-      const grid = document.getElementById('tablesGrid');
-      grid.innerHTML = '';
-
-      tablesData.forEach(table => {
-        const tableElement = document.createElement('div');
-        tableElement.className = `table ${table.status}`;
-        tableElement.setAttribute('data-table', table.id);
-        tableElement.setAttribute('data-status', table.status);
-        
-        tableElement.innerHTML = `
-          <div>${table.number}</div>
-          ${table.status !== 'available' ? `<div class="status">${table.status.toUpperCase()}</div>` : ''}
-          <div class="capacity">${table.capacity}</div>
-        `;
-
-        if (table.status === 'available') {
-          tableElement.addEventListener('click', handleTableClick);
-        }
-
-        grid.appendChild(tableElement);
-      });
-    }
-
-    function handleTableClick(event) {
-      const table = event.currentTarget;
-      const tableId = table.getAttribute('data-table');
-      const tableNumber = table.querySelector('div').textContent;
-      
-      // Remover selección anterior
-      document.querySelectorAll('.table.selected').forEach(t => {
-        t.classList.remove('selected');
-      });
-      
-      // Seleccionar nueva mesa
-      table.classList.add('selected');
-      selectedTable = { id: tableId, number: tableNumber };
-      
-      // Mostrar snackbar con opciones
-      showSnackbar(`Mesa ${tableNumber} seleccionada. ¿Qué deseas hacer?`);
-    }
-
-    // ========== ACCIONES DE MESAS ==========
-    function handleReserve() {
-      if (selectedTable) {
-        updateTableStatus(selectedTable.id, 'reserved');
-        showSnackbar(`✅ Mesa ${selectedTable.number} reservada exitosamente`);
-        setTimeout(hideSnackbar, 3000);
-      }
-    }
-
-    function handleOccupy() {
-      if (selectedTable) {
-        updateTableStatus(selectedTable.id, 'occupied');
-        showSnackbar(`✅ Mesa ${selectedTable.number} ocupada exitosamente`);
-        setTimeout(hideSnackbar, 3000);
-      }
-    }
-
-    function updateTableStatus(tableId, newStatus) {
-      const tableIndex = tablesData.findIndex(table => table.id == tableId);
-      if (tableIndex !== -1) {
-        tablesData[tableIndex].status = newStatus;
-        renderTables();
-        updateStats();
-        hideSnackbar();
-      }
-    }
-
-    function confirmSelection() {
-      if (selectedTable) {
-        handleOccupy();
-      } else {
-        showSnackbar('⚠️ Por favor selecciona una mesa primero');
-        setTimeout(hideSnackbar, 3000);
-      }
-    }
-
-    function refreshTables() {
-      // Simular recarga de datos
-      const refreshBtn = document.querySelector('.btn-refresh');
-      refreshBtn.classList.add('loading');
-      
-      setTimeout(() => {
-        loadTablesData();
-        refreshBtn.classList.remove('loading');
-        showSnackbar('🔄 Estado de mesas actualizado');
-        setTimeout(hideSnackbar, 2000);
-      }, 1000);
-    }
-
-    // ========== UI FUNCTIONS ==========
-    function showSnackbar(message) {
-      snackbarMessage.textContent = message;
-      snackbar.classList.add('show');
-    }
-
-    function hideSnackbar() {
-      snackbar.classList.remove('show');
-      document.querySelectorAll('.table.selected').forEach(t => {
-        t.classList.remove('selected');
-      });
-      selectedTable = null;
-    }
-
-    function updateStats() {
-      const total = tablesData.length;
-      const available = tablesData.filter(table => table.status === 'available').length;
-      const occupied = tablesData.filter(table => table.status === 'occupied').length;
-      const reserved = tablesData.filter(table => table.status === 'reserved').length;
-
-      document.getElementById('totalTables').textContent = total;
-      document.getElementById('availableTables').textContent = available;
-      document.getElementById('occupiedTables').textContent = occupied;
-      document.getElementById('reservedTables').textContent = reserved;
-    }
-
-    function logout() {
-      if (confirm('¿Estás seguro de que deseas cerrar sesión?')) {
-        localStorage.removeItem('token');
-        localStorage.removeItem('user');
-        window.location.href = '/login';
-      }
-    }
-
-    // ========== EFECTOS VISUALES ==========
-    function initDashboardParticles() {
-      const container = document.getElementById('dashboardParticles');
-      if (!container) return;
-
-      for (let i = 0; i < 25; i++) {
-        const particle = document.createElement('div');
-        particle.className = 'dashboard-particle';
-        particle.style.left = Math.random() * 100 + 'vw';
-        particle.style.width = Math.random() * 8 + 4 + 'px';
-        particle.style.height = particle.style.width;
-        particle.style.animationDelay = Math.random() * 20 + 's';
-        particle.style.animationDuration = (Math.random() * 15 + 20) + 's';
-        container.appendChild(particle);
-      }
-    }
-
-    // Cerrar snackbar al hacer clic fuera
-    document.addEventListener('click', (e) => {
-      if (snackbar.classList.contains('show') && 
-          !snackbar.contains(e.target) && 
-          !e.target.closest('.table.available')) {
-        hideSnackbar();
-      }
-    });
-  </script>
+  <!-- Scripts JavaScript -->
+  <script src="/js/components/particles.js"></script>
+  <script src="/js/api/tables-api.js"></script>
+  <script src="/js/pages/tables.js"></script>
 </body>
 </html>

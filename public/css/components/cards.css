@@ -1,0 +1,172 @@
+/* Sistema de cartas modulares para mesas */
+.tables-container {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 25px;
+  margin: 0 auto;
+}
+
+.table-card {
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 20px;
+  padding: 25px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+  border: 4px solid transparent;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.table-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.4), transparent);
+  transition: left 0.5s;
+}
+
+.table-card:hover::before {
+  left: 100%;
+}
+
+.table-card.available { 
+  border-color: #4caf50;
+  animation: pulseGlow 3s infinite;
+}
+
+.table-card.occupied { 
+  border-color: #ff5a5a;
+  cursor: not-allowed;
+  opacity: 0.8;
+}
+
+.table-card.reserved { 
+  border-color: #64b5f6;
+  cursor: not-allowed;
+  opacity: 0.8;
+}
+
+@keyframes pulseGlow {
+  0%, 100% { 
+    box-shadow: 0 10px 25px rgba(76, 175, 80, 0.3);
+  }
+  50% { 
+    box-shadow: 0 10px 25px rgba(76, 175, 80, 0.6);
+  }
+}
+
+.table-card:hover:not(.occupied):not(.reserved) {
+  transform: translateY(-8px) scale(1.02);
+  box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+}
+
+.table-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+}
+
+.table-number {
+  font-size: 32px;
+  font-weight: bold;
+  color: #333;
+  font-family: 'Bangers', cursive;
+}
+
+.table-status {
+  padding: 6px 12px;
+  border-radius: 15px;
+  font-size: 12px;
+  font-weight: bold;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.status-available {
+  background: #4caf50;
+  color: white;
+}
+
+.status-occupied {
+  background: #ff5a5a;
+  color: white;
+}
+
+.status-reserved {
+  background: #64b5f6;
+  color: white;
+}
+
+.table-info {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.info-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: #666;
+  font-size: 14px;
+}
+
+.info-item i {
+  width: 16px;
+  text-align: center;
+  color: #ff6b35;
+}
+
+.table-actions {
+  display: flex;
+  gap: 10px;
+}
+
+.action-btn {
+  flex: 1;
+  padding: 10px;
+  border: none;
+  border-radius: 12px;
+  font-family: 'Arial Rounded MT Bold', sans-serif;
+  font-size: 12px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+}
+
+.action-btn.occupy {
+  background: #4caf50;
+  color: white;
+}
+
+.action-btn.reserve {
+  background: #64b5f6;
+  color: white;
+}
+
+.action-btn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.action-btn:not(:disabled):hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+@media (max-width: 768px) {
+  .table-info {
+    grid-template-columns: 1fr;
+  }
+}

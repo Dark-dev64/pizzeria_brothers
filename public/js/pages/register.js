@@ -6,7 +6,8 @@ import { validatePassword } from '../components/form-validator.js';
 // Estado del formulario
 let formState = {
     isLoading: false,
-    errors: {}
+    errors: {},
+    hasInteracted: new Set() // ✅ NUEVO: Para rastrear campos interactuados
 };
 
 // Función debounce para optimización
@@ -106,7 +107,7 @@ function updateRoleDescription() {
     }
 }
 
-// Configurar toggles de contraseña - MEJORADO
+// Configurar toggles de contraseña
 function setupPasswordToggles() {
     document.querySelectorAll('.toggle-password').forEach(button => {
         button.addEventListener('click', function() {
@@ -165,7 +166,6 @@ function updatePasswordStrength(password) {
     }
 
     strengthFill.classList.add(className);
-    // Limpiar posible estilo inline previo para que la clase controle el ancho
     strengthFill.style.width = '';
 }
 
@@ -190,8 +190,13 @@ function updateCharCounter(fieldId, maxLength = 50) {
     }
 }
 
-// Función para mostrar errores en campos
+// ✅ FUNCIÓN CORREGIDA: Solo mostrar error si el campo ha sido interactuado
 function showFieldError(fieldId, message) {
+    // Solo mostrar error si el campo ha sido interactuado
+    if (!formState.hasInteracted.has(fieldId)) {
+        return;
+    }
+    
     const field = document.getElementById(fieldId);
     const errorElement = document.getElementById(fieldId + 'Error');
     const inputContainer = field?.closest('.input-with-icon');
@@ -241,26 +246,38 @@ function markFieldAsValid(fieldId) {
     clearFieldError(fieldId);
 }
 
-// Función para limpiar todos los errores
+// ✅ FUNCIÓN CORREGIDA: Limpiar todos los errores al inicializar
 function clearAllErrors() {
     const errorFields = ['nombre', 'apellido', 'username', 'email', 'password', 'confirmPassword', 'id_rol'];
-    errorFields.forEach(field => clearFieldError(field));
+    errorFields.forEach(field => {
+        clearFieldError(field);
+    });
     formState.errors = {};
+    formState.hasInteracted.clear(); // Limpiar interacciones
 }
 
 // Función para validar email
 function isValidEmail(email) {
+    if (!email) return true; // Email es opcional
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
     return emailRegex.test(email);
 }
 
-// Validación individual de campos
+// ✅ FUNCIÓN CORREGIDA: Validación individual de campos
 function validateSingleField(fieldId) {
     const field = document.getElementById(fieldId);
     if (!field) return;
     
     const value = field.value.trim();
     const isRequired = field.hasAttribute('required');
+    
+    // Solo validar si el campo ha sido interactuado o tiene valor
+    const shouldValidate = formState.hasInteracted.has(fieldId) || value.length > 0;
+    
+    if (!shouldValidate) {
+        clearFieldError(fieldId);
+        return;
+    }
     
     switch(fieldId) {
         case 'nombre':
@@ -318,7 +335,6 @@ function validateSingleField(fieldId) {
                     }
                 }
                 
-                // Actualizar fuerza de contraseña
                 updatePasswordStrength(value);
             } else {
                 clearFieldError('password');
@@ -351,9 +367,8 @@ function validateSingleField(fieldId) {
     }
 }
 
-// Función para validar formulario completo
+// ✅ FUNCIÓN CORREGIDA: Validación completa del formulario (siempre valida en submit)
 function validateForm(formData) {
-    clearAllErrors();
     let isValid = true;
 
     // Validar campos obligatorios
@@ -405,15 +420,21 @@ function validateForm(formData) {
     return isValid;
 }
 
-// Configurar validación en tiempo real
+// ✅ FUNCIÓN CORREGIDA: Configurar validación en tiempo real
 function setupRealTimeValidation() {
-    const fields = ['nombre', 'apellido', 'username', 'email', 'password', 'confirmPassword'];
+    const fields = ['nombre', 'apellido', 'username', 'email', 'password', 'confirmPassword', 'id_rol'];
     
     fields.forEach(field => {
         const element = document.getElementById(field);
         if (element) {
-            // Usar debounce para evitar validaciones excesivas
+            // Marcar como interactuado cuando el usuario interactúa con el campo
+            const markAsInteracted = () => {
+                formState.hasInteracted.add(field);
+            };
+            
+            element.addEventListener('focus', markAsInteracted);
             element.addEventListener('input', debounce(() => {
+                markAsInteracted();
                 validateSingleField(field);
                 
                 // Actualizar contadores de caracteres
@@ -423,6 +444,7 @@ function setupRealTimeValidation() {
             }, 300));
             
             element.addEventListener('blur', () => {
+                markAsInteracted();
                 validateSingleField(field);
             });
         }
@@ -431,7 +453,11 @@ function setupRealTimeValidation() {
     // Validación para select de rol
     const roleSelect = document.getElementById('id_rol');
     if (roleSelect) {
+        roleSelect.addEventListener('focus', () => {
+            formState.hasInteracted.add('id_rol');
+        });
         roleSelect.addEventListener('change', () => {
+            formState.hasInteracted.add('id_rol');
             validateSingleField('id_rol');
             updateRoleDescription();
         });
@@ -444,26 +470,26 @@ async function handleRegister(event) {
     
     if (formState.isLoading) return;
     
+    // Marcar todos los campos como interactuados al enviar el formulario
+    const allFields = ['nombre', 'apellido', 'username', 'email', 'password', 'confirmPassword', 'id_rol'];
+    allFields.forEach(field => formState.hasInteracted.add(field));
+    
     // Sanitizar y obtener datos del formulario
     const formData = {
-        username: sanitizeInput(document.getElementById('username')?.value.trim()),
+        username: document.getElementById('username')?.value.trim(),
         password: document.getElementById('password')?.value,
         confirmPassword: document.getElementById('confirmPassword')?.value,
-        nombre: sanitizeInput(document.getElementById('nombre')?.value.trim()),
-        apellido: sanitizeInput(document.getElementById('apellido')?.value.trim()),
-        email: sanitizeInput(document.getElementById('email')?.value.trim()),
+        nombre: document.getElementById('nombre')?.value.trim(),
+        apellido: document.getElementById('apellido')?.value.trim(),
+        email: document.getElementById('email')?.value.trim(),
         id_rol: document.getElementById('id_rol')?.value
     };
 
-    // Validar tamaño de datos
-    if (JSON.stringify(formData).length > 10000) {
-        showNotification('❌ Los datos enviados son demasiado grandes', 'error');
-        return;
-    }
+    console.log('📤 Datos a enviar:', formData);
 
     // Validar formulario
     if (!validateForm(formData)) {
-        showNotification('❌ Por favor corrige los errores del formulario', 'error');
+        showNotification('Por favor corrige los errores del formulario', 'error');
         return;
     }
 
@@ -480,6 +506,8 @@ async function handleRegister(event) {
             id_rol: parseInt(formData.id_rol) || 1
         };
 
+        console.log('🔄 Enviando solicitud a /api/auth/register:', requestData);
+
         const response = await fetch('/api/auth/register', {
             method: 'POST',
             headers: {
@@ -489,6 +517,7 @@ async function handleRegister(event) {
         });
 
         const data = await response.json();
+        console.log('📥 Respuesta del servidor:', data);
 
         if (!response.ok) {
             // Manejar errores del servidor
@@ -496,32 +525,30 @@ async function handleRegister(event) {
                 data.errors.forEach(error => {
                     showFieldError(error.field, error.message);
                 });
-                showNotification('❌ Por favor corrige los errores del formulario', 'error');
+                showNotification('Por favor corrige los errores del formulario', 'error');
             } else {
-                showNotification('❌ ' + (data.message || 'Error en el registro'), 'error');
+                showNotification(data.message || 'Error en el registro', 'error');
             }
             return;
         }
 
         if (data.success) {
-            showNotification('✅ ' + data.message, 'success');
+            showNotification(data.message, 'success');
             setTimeout(() => {
                 window.location.href = '/login';
             }, 2000);
         } else {
-            showNotification('❌ ' + data.message, 'error');
+            showNotification(data.message, 'error');
         }
     } catch (error) {
-        console.error('Error en registro:', error);
-        showNotification('❌ Error de conexión. Intenta nuevamente.', 'error');
+        console.error('❌ Error en registro:', error);
+        showNotification('Error de conexión. Intenta nuevamente.', 'error');
     } finally {
         setLoadingState(false);
     }
 }
-
 // Función para mostrar notificaciones
 function showNotification(message, type = 'info') {
-    // Crear elemento de notificación
     const notification = document.createElement('div');
     notification.className = `notification notification-${type}`;
     notification.setAttribute('role', 'alert');
@@ -534,7 +561,6 @@ function showNotification(message, type = 'info') {
 
     document.body.appendChild(notification);
 
-    // Remover después de 5 segundos
     setTimeout(() => {
         notification.style.animation = 'slideOutRight 0.3s ease-in';
         setTimeout(() => {
@@ -565,8 +591,11 @@ function setLoadingState(loading) {
     }
 }
 
-// Inicializar página de registro
+// ✅ INICIALIZACIÓN CORREGIDA: Limpiar errores al cargar
 function initRegisterPage() {
+    // Limpiar todos los errores al inicializar
+    clearAllErrors();
+    
     // Inicializar efectos de botones
     if (typeof initRippleButtons === 'function') {
         initRippleButtons();
